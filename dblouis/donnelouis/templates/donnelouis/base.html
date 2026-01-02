@@ -4,9 +4,9 @@
 <head>
   <meta charset="UTF-8">
   <title>{% block title %}L'Air du Vol®{% endblock %}</title>
-  <link rel="stylesheet" href="{% static 'donnelouis/css/style.css' %}">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="icon" href="{% static 'donnelouis/images/logo.png' %}" type="image/png">
+  <link rel="icon" href="{% static 'images/logo.png' %}" type="image/png">
   {% block extra_css %}{% endblock %}
 </head>
 <body>
@@ -14,7 +14,7 @@
   <header class="topbar">
     <div class="logo-site">
       <button id="toggle-sidebar" class="sidebar-toggle">☰</button>
-      <img src="{% static 'donnelouis/images/logo.png' %}" alt="Logo" class="logo-img">
+      <img src="{% static 'images/logo.png' %}" alt="Logo" class="logo-img">
       <span class="site-name">L'Air du vol®</span>
     </div>
     <button id="toggle-theme">🌙 Mode Sombre</button>
@@ -25,28 +25,22 @@
     <ul class="menu">
       <li><a href="{% url 'index' %}">Accueil 🏠</a></li>
       <li class="has-submenu">
-        <a href="#">Articles 📰</a>
+        <a href="#">Exploration 📚 </a>
         <ul class="sous-menu">
-          <li><a href="{% url 'liste_articles' %}">Découvrir les articles 📚</a></li>
-          <li><a href="#">Créer un article (admin) 🔏</a></li>
+          <li><a href="{% url 'liste_articles' %}">Articles 📰</a></li>
+          <li><a href="#">Médias 🖥️</a></li>
+          <li><a href="#">Liens 🔗</a></li>
         </ul>
       </li>
       <li class="has-submenu">
-        <a href="#">Médias 💻</a>
+        <a href="#">Communauté 👥</a>
         <ul class="sous-menu">
-          <li><a href="#">Vidéos 🎥</a></li>
-          <li><a href="#">Podcasts 🎙️</a></li>
-          <li><a href="#">Jeux 🎮</a></li>
+          <li><a href="#">Devenir membre 📨</a></li>
+          <li><a href="#">Contribuer 🖊️</a></li>
+          <li><a href="#">Nous contacter 📞</a></li>
         </ul>
       </li>
-      <li><a href="#">Liens 🔗</a></li>
-      <li class="has-submenu">
-        <a href="#">A propos ➕</a>
-        <ul class="sous-menu">
-          <li><a href="#">Avis ⭐</a></li>
-          <li><a href="#">Conditions générales d'utilisation ⚠️</a></li>
-        </ul>
-      </li>
+    <li><a href="#">CGU ⚠️</a></li>
     </ul>
     
     <!-- Publicité sidebar -->
@@ -91,7 +85,7 @@
     </div>
   </div>
 
-  <script src="{% static 'donnelouis/js/main.js' %}"></script>
+  <script src="{% static 'js/main.js' %}"></script>
   {% block extra_js %}{% endblock %}
 </body>
 </html>

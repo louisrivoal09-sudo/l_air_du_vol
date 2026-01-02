@@ -152,7 +152,8 @@
       const date = safeText(card?.querySelector('.date')) || (card?.dataset.date || '');
 
       if (!template || !fullArticle) {
-        alert('Article non disponible');
+        // ⚠️ DÉSACTIVÉ : On utilise maintenant des vraies pages détails avec onclick
+        // alert('Article non disponible');
         return;
       }
 

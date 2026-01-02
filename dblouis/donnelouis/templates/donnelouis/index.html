@@ -17,14 +17,9 @@
     <div class="stat-label">Articles publiés</div>
   </div>
   <div class="stat-card">
-    <div class="stat-icon">🎥</div>
+    <div class="stat-icon">🖥️</div>
     <div class="stat-number">50+</div>
-    <div class="stat-label">Vidéos disponibles</div>
-  </div>
-  <div class="stat-card">
-    <div class="stat-icon">🎙️</div>
-    <div class="stat-number">30+</div>
-    <div class="stat-label">Épisodes de podcasts</div>
+    <div class="stat-label">Vidéos & podcasts disponibles</div>
   </div>
   <div class="stat-card">
     <div class="stat-icon">👥</div>
@@ -51,28 +46,16 @@
       </div>
     </a>
 
-    <!-- Carte Vidéos -->
+    <!-- Carte Médias -->
     <a href="#" class="page-card" style="text-decoration: none;">
-      <div class="page-card-icon">🎥</div>
-      <h3 class="page-card-title">Vidéos</h3>
-      <p class="page-card-description">Découvrez notre sélection de vidéos documentaires et reportages sur l'histoire de l'aviation et ses innovations.</p>
+      <div class="page-card-icon">🖥️</div>
+      <h3 class="page-card-title">Médias</h3>
+      <p class="page-card-description">Découvrez notre sélection de vidéos documentaires et de podcasts sur l'histoire de l'aviation et ses innovations.</p>
       <div class="page-card-footer">
-        <span class="page-card-count">50+ vidéos</span>
+        <span class="page-card-count">50+ vidéos & podcasts</span>
         <span class="page-card-arrow">→</span>
       </div>
     </a>
-
-    <!-- Carte Podcasts -->
-    <a href="#" class="page-card" style="text-decoration: none;">
-      <div class="page-card-icon">🎙️</div>
-      <h3 class="page-card-title">Podcasts</h3>
-      <p class="page-card-description">Écoutez nos émissions dédiées à l'aéronautique, avec des experts et passionnés qui partagent leurs connaissances.</p>
-      <div class="page-card-footer">
-        <span class="page-card-count">30+ épisodes</span>
-        <span class="page-card-arrow">→</span>
-      </div>
-    </a>
-
     <!-- Carte Liens -->
     <a href="#" class="page-card" style="text-decoration: none;">
       <div class="page-card-icon">🔗</div>
@@ -83,37 +66,6 @@
         <span class="page-card-arrow">→</span>
       </div>
     </a>
-  </div>
-</section>
-
-<!-- Articles récents -->
-<section class="content-section">
-  <div class="section-header">
-    <h2 class="section-title">Articles récents</h2>
-    <a href="{% url 'liste_articles' %}" class="view-all-btn">Voir tous les articles →</a>
-  </div>
-  
-  <div class="grid-modern">
-    {% for article in articles_recents %}
-    <div class="card">
-      {% if article.image_principale %}
-      <img src="{{ article.image_principale }}" alt="{{ article.titre }}">
-      {% endif %}
-      <div class="card-content">
-        <div class="article-category-badge {{ article.categorie }}">
-          {% if article.categorie == 'aviation' %}✈️ Aviation civile
-          {% elif article.categorie == 'avions' %}🛩️ Grands avions
-          {% else %}⚔️ Opérations militaires{% endif %}
-        </div>
-        <h3>{{ article.titre }}</h3>
-        <p>{{ article.resume|truncatewords:30 }}</p>
-        <a href="{% url 'detail_article' article.slug %}" class="btn">Lire plus</a>
-        <div class="article">
-          <small class="date">Publié le {{ article.date_publication|date:"d F Y" }}</small>
-        </div>
-      </div>
-    </div>
-    {% endfor %}
   </div>
 </section>
 {% endblock %}

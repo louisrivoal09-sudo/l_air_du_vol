@@ -65,7 +65,10 @@
   <div class="article-card" 
        data-category="{{ article.categorie }}" 
        data-date="{{ article.date_publication|date:'Y-m-d' }}" 
-       data-title="{{ article.titre|lower }}">
+       data-title="{{ article.titre|lower }}"
+       data-url="{% url 'detail_article' article.slug %}"
+       style="cursor: pointer;"
+       onclick="if(this.dataset.url) window.location.href = this.dataset.url;">
     <div class="article-category-badge {{ article.categorie }}">
       {% if article.categorie == 'aviation' %}Aviation civile
       {% elif article.categorie == 'avions' %}Grands avions
@@ -80,8 +83,8 @@
     
     <div class="card-content">
       <h3>{{ article.titre }}</h3>
-      <p>{{ article.resume|truncatewords:25 }}</p>
-      <a href="{% url 'detail_article' article.slug %}" class="btn read-more">Lire plus</a>
+      <p>{{ article.resume|truncatewords:30 }}</p>
+      <span class="btn read-more">Lire plus</span>
       <div class="article">
         <small class="date">Publié le {{ article.date_publication|date:"d F Y" }}</small>
       </div>
