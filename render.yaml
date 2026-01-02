@@ -4,7 +4,8 @@ services:
     env: python
     region: frankfurt
     plan: free
-    buildCommand: bash build.sh
+    rootDir: louis/dblouis
+    buildCommand: python manage.py collectstatic --no-input && python manage.py migrate --no-input
     startCommand: gunicorn dblouis.wsgi:application --bind 0.0.0.0:$PORT
     envVars:
       - key: DATABASE_URL
