@@ -1,0 +1,19 @@
+{
+  "buildCommand": "pip install -r requirements.txt && python louis/dblouis/manage.py migrate --no-input",
+  "devCommand": "python louis/dblouis/manage.py runserver",
+  "env": {
+    "DJANGO_SETTINGS_MODULE": "dblouis.settings",
+    "PYTHONUNBUFFERED": "1"
+  },
+  "functions": {
+    "api/index.py": {
+      "runtime": "python3.11"
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/api/index.py"
+    }
+  ]
+}
