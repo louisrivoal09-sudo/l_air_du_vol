@@ -1,18 +1,231 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Articles</title>
-</head>
-<body>
-    <h1>Liste des articles</h1>
-    <ul>
-        {% for article in articles %}
-            <li>
-                <h2>{{ article.titre }}</h2>
-                <p>{{ article.contenu }}</p>
-                <p><em>Par {{ article.auteur }} le {{ article.date_publication }}</em></p>
-            </li>
-        {% endfor %}
-    </ul>
-</body>
-</html>
+{% extends 'donnelouis/base.html' %}
+{% load static %}
+
+{% block title %}Tous nos articles - L'Air du Vol®{% endblock %}
+
+{% block content %}
+<!-- Hero section -->
+<div class="articles-hero">
+  <h1>📖 Tous nos articles</h1>
+  <p>Explorez notre collection complète d'articles sur l'aviation civile, les grands avions du monde et les opérations militaires</p>
+</div>
+
+<!-- Section filtres et recherche -->
+<div class="filters-section">
+  <div class="filters-header">
+    <h2 class="filters-title">Filtrer & Rechercher</h2>
+    <div class="results-count" id="results-count">{{ articles.count }} articles trouvés</div>
+  </div>
+
+  <!-- Barre de recherche -->
+  <div class="search-bar-advanced">
+    <input type="text" id="search-input" placeholder="Rechercher un article par titre, description ou date...">
+    <button class="search-clear" id="search-clear">×</button>
+  </div>
+
+  <!-- Filtres par catégorie -->
+  <div class="category-filters">
+    <button class="category-btn active" data-category="all">
+      ✨ Tous les articles
+      <span class="category-badge">{{ articles.count }}</span>
+    </button>
+    <button class="category-btn" data-category="aviation">
+      ✈️ Aviation civile
+      <span class="category-badge">{{ stats.aviation }}</span>
+    </button>
+    <button class="category-btn" data-category="avions">
+      🛩️ Grands avions
+      <span class="category-badge">{{ stats.avions }}</span>
+    </button>
+    <button class="category-btn" data-category="operations">
+      ⚔️ Opérations militaires
+      <span class="category-badge">{{ stats.operations }}</span>
+    </button>
+  </div>
+
+  <!-- Contrôles de vue et tri -->
+  <div class="view-controls">
+    <div class="sort-controls">
+      <span class="sort-label">Trier par:</span>
+      <button class="sort-btn active" data-sort="recent">📅 Plus récent</button>
+      <button class="sort-btn" data-sort="old">🕐 Plus ancien</button>
+      <button class="sort-btn" data-sort="title">🔤 Alphabétique</button>
+    </div>
+    <div class="view-toggles">
+      <button class="view-toggle active" data-view="grid" title="Vue grille">▦</button>
+      <button class="view-toggle" data-view="list" title="Vue liste">☰</button>
+      <button class="view-toggle" data-view="compact" title="Vue compacte">▤</button>
+    </div>
+  </div>
+</div>
+
+<!-- Grille d'articles -->
+<div class="articles-grid" id="articles-grid">
+  {% for article in articles %}
+  <div class="article-card" 
+       data-category="{{ article.categorie }}" 
+       data-date="{{ article.date_publication|date:'Y-m-d' }}" 
+       data-title="{{ article.titre|lower }}">
+    <div class="article-category-badge {{ article.categorie }}">
+      {% if article.categorie == 'aviation' %}Aviation civile
+      {% elif article.categorie == 'avions' %}Grands avions
+      {% else %}Opérations militaires{% endif %}
+    </div>
+    
+    {% if article.image_principale %}
+    <img src="{{ article.image_principale }}" alt="{{ article.titre }}">
+    {% else %}
+    <img src="https://via.placeholder.com/400x240/0A2463/FFFFFF?text={{ article.titre|urlencode }}" alt="{{ article.titre }}">
+    {% endif %}
+    
+    <div class="card-content">
+      <h3>{{ article.titre }}</h3>
+      <p>{{ article.resume|truncatewords:25 }}</p>
+      <a href="{% url 'detail_article' article.slug %}" class="btn read-more">Lire plus</a>
+      <div class="article">
+        <small class="date">Publié le {{ article.date_publication|date:"d F Y" }}</small>
+      </div>
+    </div>
+  </div>
+  {% empty %}
+  <div class="no-results show">
+    <h3>Aucun article trouvé</h3>
+    <p>Nous n'avons pas encore d'articles. Revenez bientôt !</p>
+  </div>
+  {% endfor %}
+</div>
+
+<!-- Message "aucun résultat" -->
+<div class="no-results" id="no-results">
+  <h3>Aucun article trouvé</h3>
+  <p>Essayez de modifier vos filtres ou votre recherche pour trouver d'autres articles.</p>
+  <button class="reset-filters-btn" id="reset-filters">Réinitialiser les filtres</button>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Script de filtrage côté client
+document.addEventListener('DOMContentLoaded', function() {
+  const searchInput = document.getElementById('search-input');
+  const searchClear = document.getElementById('search-clear');
+  const categoryBtns = document.querySelectorAll('.category-btn');
+  const sortBtns = document.querySelectorAll('.sort-btn');
+  const viewToggles = document.querySelectorAll('.view-toggle');
+  const articlesGrid = document.getElementById('articles-grid');
+  const resultsCount = document.getElementById('results-count');
+  const noResults = document.getElementById('no-results');
+  const resetFiltersBtn = document.getElementById('reset-filters');
+  
+  let currentCategory = 'all';
+  let currentSort = 'recent';
+  let searchQuery = '';
+  
+  // Fonction de filtrage
+  function filterArticles() {
+    const cards = document.querySelectorAll('.article-card');
+    let visibleCount = 0;
+    
+    cards.forEach(card => {
+      const category = card.dataset.category;
+      const title = card.dataset.title.toLowerCase();
+      const description = card.querySelector('p').textContent.toLowerCase();
+      const date = card.querySelector('.date').textContent.toLowerCase();
+      
+      const matchCategory = currentCategory === 'all' || category === currentCategory;
+      const matchSearch = !searchQuery || 
+                         title.includes(searchQuery) || 
+                         description.includes(searchQuery) || 
+                         date.includes(searchQuery);
+      
+      if (matchCategory && matchSearch) {
+        card.classList.remove('hidden');
+        visibleCount++;
+      } else {
+        card.classList.add('hidden');
+      }
+    });
+    
+    resultsCount.textContent = `${visibleCount} article${visibleCount > 1 ? 's' : ''} trouvé${visibleCount > 1 ? 's' : ''}`;
+    
+    if (visibleCount === 0) {
+      noResults.classList.add('show');
+      articlesGrid.style.display = 'none';
+    } else {
+      noResults.classList.remove('show');
+      articlesGrid.style.display = '';
+      sortArticles();
+    }
+  }
+  
+  // Recherche
+  searchInput.addEventListener('input', (e) => {
+    searchQuery = e.target.value.toLowerCase().trim();
+    searchClear.classList.toggle('show', searchQuery !== '');
+    filterArticles();
+  });
+  
+  searchClear.addEventListener('click', () => {
+    searchInput.value = '';
+    searchQuery = '';
+    searchClear.classList.remove('show');
+    filterArticles();
+  });
+  
+  // Catégories
+  categoryBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      categoryBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentCategory = btn.dataset.category;
+      filterArticles();
+    });
+  });
+  
+  // Tri
+  sortBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      sortBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentSort = btn.dataset.sort;
+      sortArticles();
+    });
+  });
+  
+  function sortArticles() {
+    const cards = Array.from(document.querySelectorAll('.article-card:not(.hidden)'));
+    cards.sort((a, b) => {
+      if (currentSort === 'recent') {
+        return new Date(b.dataset.date) - new Date(a.dataset.date);
+      } else if (currentSort === 'old') {
+        return new Date(a.dataset.date) - new Date(b.dataset.date);
+      } else {
+        return a.dataset.title.localeCompare(b.dataset.title);
+      }
+    });
+    cards.forEach(card => articlesGrid.appendChild(card));
+  }
+  
+  // Vue
+  viewToggles.forEach(toggle => {
+    toggle.addEventListener('click', () => {
+      viewToggles.forEach(t => t.classList.remove('active'));
+      toggle.classList.add('active');
+      const view = toggle.dataset.view;
+      articlesGrid.classList.remove('list-view', 'compact-view');
+      if (view === 'list') articlesGrid.classList.add('list-view');
+      if (view === 'compact') articlesGrid.classList.add('compact-view');
+    });
+  });
+  
+  // Reset
+  resetFiltersBtn.addEventListener('click', () => {
+    searchInput.value = '';
+    searchQuery = '';
+    currentCategory = 'all';
+    categoryBtns.forEach(btn => btn.classList.toggle('active', btn.dataset.category === 'all'));
+    filterArticles();
+  });
+});
+</script>
+{% endblock %}

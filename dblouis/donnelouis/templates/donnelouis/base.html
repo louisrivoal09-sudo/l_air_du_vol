@@ -1,0 +1,97 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>{% block title %}L'Air du Vol®{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'donnelouis/css/style.css' %}">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="{% static 'donnelouis/images/logo.png' %}" type="image/png">
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+  <!-- Barre du haut -->
+  <header class="topbar">
+    <div class="logo-site">
+      <button id="toggle-sidebar" class="sidebar-toggle">☰</button>
+      <img src="{% static 'donnelouis/images/logo.png' %}" alt="Logo" class="logo-img">
+      <span class="site-name">L'Air du vol®</span>
+    </div>
+    <button id="toggle-theme">🌙 Mode Sombre</button>
+  </header>
+
+  <!-- Menu latéral -->
+  <nav class="sidebar">
+    <ul class="menu">
+      <li><a href="{% url 'index' %}">Accueil 🏠</a></li>
+      <li class="has-submenu">
+        <a href="#">Articles 📰</a>
+        <ul class="sous-menu">
+          <li><a href="{% url 'liste_articles' %}">Découvrir les articles 📚</a></li>
+          <li><a href="#">Créer un article (admin) 🔏</a></li>
+        </ul>
+      </li>
+      <li class="has-submenu">
+        <a href="#">Médias 💻</a>
+        <ul class="sous-menu">
+          <li><a href="#">Vidéos 🎥</a></li>
+          <li><a href="#">Podcasts 🎙️</a></li>
+          <li><a href="#">Jeux 🎮</a></li>
+        </ul>
+      </li>
+      <li><a href="#">Liens 🔗</a></li>
+      <li class="has-submenu">
+        <a href="#">A propos ➕</a>
+        <ul class="sous-menu">
+          <li><a href="#">Avis ⭐</a></li>
+          <li><a href="#">Conditions générales d'utilisation ⚠️</a></li>
+        </ul>
+      </li>
+    </ul>
+    
+    <!-- Publicité sidebar -->
+    <div class="sidebar-ad">
+      <p>PUBLICITÉ</p>
+      <a href="https://www.flightsimulator.com/" target="_blank">
+        <img src="https://image.api.playstation.com/vulcan/ap/rnd/202509/1802/ed39778b97eafec593e5eea9cd762fab81976920c3e92720.jpg" alt="Microsoft Flight Simulator 2024">
+      </a>
+    </div>
+  </nav>
+
+  <!-- Contenu principal -->
+  <main class="main-content">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-content">
+      <h3>Conditions Générales d'Utilisation</h3>
+      <p>En accédant au site <strong>L'Air du vol</strong>, vous acceptez nos conditions générales d'utilisation. Toute reproduction ou diffusion du contenu est interdite sans autorisation.</p>
+      <p>&copy; 2025 - L'Air du vol. Tous droits réservés.</p>
+    </div>
+  </footer>
+
+  <!-- Bouton Assistant IA -->
+  <button id="ai-chat-btn">❔</button>
+
+  <!-- Modale Chat IA -->
+  <div id="ai-chat-modal">
+    <div class="ai-chat-header">
+      <h3>Assistant IA</h3>
+      <button id="close-ai-chat">&times;</button>
+    </div>
+    <div class="ai-chat-messages" id="ai-chat-messages"></div>
+    <div class="typing-indicator" id="typing-indicator">
+      <div class="typing-dots"><span></span><span></span><span></span></div>
+    </div>
+    <div class="ai-chat-input">
+      <textarea id="ai-input" placeholder="Écrivez votre message..."></textarea>
+      <button id="ai-send-btn">Envoyer</button>
+    </div>
+  </div>
+
+  <script src="{% static 'donnelouis/js/main.js' %}"></script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

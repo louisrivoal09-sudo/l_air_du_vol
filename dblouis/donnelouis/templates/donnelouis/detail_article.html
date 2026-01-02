@@ -1,0 +1,253 @@
+{% extends 'donnelouis/base.html' %}
+{% load static %}
+
+{% block title %}{{ article.titre }} - L'Air du Vol®{% endblock %}
+
+{% block content %}
+<!-- Barre de progression -->
+<div class="reading-progress">
+  <div class="reading-progress-bar" id="reading-progress-bar"></div>
+</div>
+
+<!-- Article complet -->
+<div class="card" style="max-width: 1200px; margin: 0 auto;">
+  <div class="card-content" style="padding: 3rem;">
+    <h1 class="preview-title">{{ article.titre }}</h1>
+    <p class="preview-date">Publié le {{ article.date_publication|date:"d F Y" }}</p>
+    
+    <!-- Boutons d'action -->
+    <div class="article-actions">
+      <button class="download-article-btn" onclick="downloadArticleAsPDF()">
+        📄 Télécharger en PDF
+      </button>
+      <button class="share-article-btn" onclick="shareArticle()">
+        📤 Partager
+      </button>
+    </div>
+    
+    <!-- Résumé -->
+    {% if article.resume %}
+    <div class="preview-resume">
+      {{ article.resume }}
+    </div>
+    {% endif %}
+    
+    <!-- Thème 1 -->
+    {% if article.theme1_titre %}
+    <h2 class="preview-theme">{{ article.theme1_titre }}</h2>
+    
+    {% if article.theme1_section_a_titre %}
+    <h3 class="preview-section-title">{{ article.theme1_section_a_titre }}</h3>
+    <p class="preview-text">{{ article.theme1_section_a_texte|linebreaks }}</p>
+    {% endif %}
+    
+    {% if article.theme1_section_b_titre %}
+    <h3 class="preview-section-title">{{ article.theme1_section_b_titre }}</h3>
+    <p class="preview-text">{{ article.theme1_section_b_texte|linebreaks }}</p>
+    {% endif %}
+    {% endif %}
+    
+    <!-- Thème 2 -->
+    {% if article.theme2_titre %}
+    <h2 class="preview-theme">{{ article.theme2_titre }}</h2>
+    
+    {% if article.theme2_section_a_titre %}
+    <h3 class="preview-section-title">{{ article.theme2_section_a_titre }}</h3>
+    <p class="preview-text">{{ article.theme2_section_a_texte|linebreaks }}</p>
+    {% endif %}
+    
+    {% if article.theme2_section_b_titre %}
+    <h3 class="preview-section-title">{{ article.theme2_section_b_titre }}</h3>
+    <p class="preview-text">{{ article.theme2_section_b_texte|linebreaks }}</p>
+    {% endif %}
+    {% endif %}
+    
+    <!-- Thème 3 -->
+    {% if article.theme3_titre %}
+    <h2 class="preview-theme">{{ article.theme3_titre }}</h2>
+    
+    {% if article.theme3_section_a_titre %}
+    <h3 class="preview-section-title">{{ article.theme3_section_a_titre }}</h3>
+    <p class="preview-text">{{ article.theme3_section_a_texte|linebreaks }}</p>
+    {% endif %}
+    
+    {% if article.theme3_section_b_titre %}
+    <h3 class="preview-section-title">{{ article.theme3_section_b_titre }}</h3>
+    <p class="preview-text">{{ article.theme3_section_b_texte|linebreaks }}</p>
+    {% endif %}
+    {% endif %}
+    
+    <!-- Conclusion -->
+    {% if article.conclusion_texte %}
+    <h2 class="preview-conclusion-title">{{ article.conclusion_titre }}</h2>
+    <p class="preview-conclusion-text">{{ article.conclusion_texte|linebreaks }}</p>
+    {% endif %}
+    
+    <!-- Galerie d'images -->
+    {% if article.images.all %}
+    <div class="article-gallery">
+      <h3>📸 Galerie photos</h3>
+      <div class="gallery-grid">
+        {% for image in article.images.all %}
+        <div class="gallery-item" data-caption="{{ image.legende }}">
+          <img src="{{ image.image_url }}" alt="{{ image.legende }}">
+          <div class="gallery-caption">{{ image.legende }}</div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+    
+    <a href="{% url 'liste_articles' %}" class="btn" style="margin-top: 3rem; background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);">
+      ← Retour aux articles
+    </a>
+  </div>
+</div>
+
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox">
+  <div class="lightbox-toolbar">
+    <button class="lightbox-btn lightbox-download" id="lightbox-download" title="Télécharger">📥</button>
+    <button class="lightbox-btn lightbox-close" id="lightbox-close" title="Fermer">×</button>
+  </div>
+  <button class="lightbox-nav lightbox-prev" id="lightbox-prev">❮</button>
+  <div class="lightbox-content">
+    <img id="lightbox-img" src="" alt="">
+  </div>
+  <button class="lightbox-nav lightbox-next" id="lightbox-next">❯</button>
+  <div class="lightbox-caption">
+    <div id="lightbox-caption-text"></div>
+    <div class="lightbox-counter" id="lightbox-counter"></div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Barre de progression
+window.addEventListener('scroll', () => {
+  const progressBar = document.getElementById('reading-progress-bar');
+  const article = document.querySelector('.card-content');
+  const windowHeight = window.innerHeight;
+  const docHeight = article.offsetHeight;
+  const scrollTop = window.pageYOffset;
+  const progress = (scrollTop / (docHeight - windowHeight)) * 100;
+  progressBar.style.width = Math.min(Math.max(progress, 0), 100) + '%';
+});
+
+// Téléchargement PDF
+function downloadArticleAsPDF() {
+  const content = document.querySelector('.card-content').cloneNode(true);
+  content.querySelectorAll('.article-actions, .btn').forEach(el => el.remove());
+  
+  const printWindow = window.open('', '', 'width=900,height=700');
+  printWindow.document.write(`
+    <!doctype html>
+    <html>
+      <head>
+        <meta charset="utf-8"/>
+        <title>{{ article.titre }}</title>
+        <style>
+          body { font-family: Arial; padding: 30px; }
+          h1 { color: #0A2463; font-size: 28px; }
+          h2 { color: #0A2463; font-size: 22px; margin-top: 20px; }
+          h3 { color: #4B5563; font-size: 18px; }
+          p { line-height: 1.6; text-align: justify; }
+        </style>
+      </head>
+      <body>
+        <div style="text-align:center; margin-bottom: 30px;">
+          <h1>L'Air du Vol®</h1>
+        </div>
+        ${content.innerHTML}
+        <div style="margin-top:50px; padding-top:20px; border-top:2px solid #ddd; text-align:center; color:#666;">
+          <p>Document généré par L'Air du Vol - ${new Date().toLocaleDateString('fr-FR')}</p>
+        </div>
+      </body>
+    </html>
+  `);
+  printWindow.document.close();
+  printWindow.onload = function() { printWindow.print(); };
+}
+
+// Partage
+function shareArticle() {
+  const title = "{{ article.titre }}";
+  const url = window.location.href;
+  const text = `Découvrez l'article "${title}" sur L'Air du Vol`;
+  
+  if (navigator.share) {
+    navigator.share({ title, text, url }).catch(() => {});
+  } else {
+    navigator.clipboard.writeText(url).then(() => {
+      alert('🔗 Lien copié dans le presse-papiers !');
+    });
+  }
+}
+
+// Lightbox
+const galleryItems = document.querySelectorAll('.gallery-item');
+const lightbox = document.getElementById('lightbox');
+const lightboxImg = document.getElementById('lightbox-img');
+const lightboxClose = document.getElementById('lightbox-close');
+const lightboxPrev = document.getElementById('lightbox-prev');
+const lightboxNext = document.getElementById('lightbox-next');
+const lightboxCounter = document.getElementById('lightbox-counter');
+const lightboxCaptionText = document.getElementById('lightbox-caption-text');
+const lightboxDownload = document.getElementById('lightbox-download');
+
+let currentIndex = 0;
+const images = Array.from(galleryItems).map(item => ({
+  src: item.querySelector('img').src,
+  caption: item.dataset.caption || ''
+}));
+
+function showImage(index) {
+  currentIndex = index;
+  const image = images[index];
+  lightboxImg.src = image.src;
+  lightboxCaptionText.textContent = image.caption;
+  lightboxCounter.textContent = `${index + 1} / ${images.length}`;
+  lightboxPrev.disabled = index === 0;
+  lightboxNext.disabled = index === images.length - 1;
+  lightbox.classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeLightbox() {
+  lightbox.classList.remove('show');
+  document.body.style.overflow = '';
+}
+
+galleryItems.forEach((item, index) => {
+  item.addEventListener('click', () => showImage(index));
+});
+
+lightboxPrev.addEventListener('click', () => {
+  if (currentIndex > 0) showImage(currentIndex - 1);
+});
+
+lightboxNext.addEventListener('click', () => {
+  if (currentIndex < images.length - 1) showImage(currentIndex + 1);
+});
+
+lightboxClose.addEventListener('click', closeLightbox);
+lightbox.addEventListener('click', (e) => {
+  if (e.target === lightbox) closeLightbox();
+});
+
+lightboxDownload.addEventListener('click', () => {
+  const link = document.createElement('a');
+  link.href = lightboxImg.src;
+  link.download = `image-${currentIndex + 1}.jpg`;
+  link.click();
+});
+
+document.addEventListener('keydown', (e) => {
+  if (!lightbox.classList.contains('show')) return;
+  if (e.key === 'Escape') closeLightbox();
+  if (e.key === 'ArrowLeft' && currentIndex > 0) showImage(currentIndex - 1);
+  if (e.key === 'ArrowRight' && currentIndex < images.length - 1) showImage(currentIndex + 1);
+});
+</script>
+{% endblock %}
