@@ -1,5 +1,4 @@
-#!/bin/bash
+﻿#!/bin/bash
 set -e
-cd louis/dblouis
-python manage.py migrate --no-input
-gunicorn dblouis.wsgi:application --bind 0.0.0.0:$PORT
+python louis/dblouis/manage.py migrate --no-input
+gunicorn wsgi:application --bind 0.0.0.0:$PORT
