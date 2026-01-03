@@ -5,6 +5,6 @@ set -o errexit
 pip install --upgrade pip
 pip install -r requirements.txt
 
-# Collect static files
+# Navigate and collect static files
 cd louis/dblouis
 python manage.py collectstatic --no-input
