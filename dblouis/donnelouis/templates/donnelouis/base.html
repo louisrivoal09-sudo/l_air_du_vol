@@ -5,6 +5,8 @@
   <meta charset="UTF-8">
   <title>{% block title %}L'Air du Vol®{% endblock %}</title>
   <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <link rel="stylesheet" href="{% static 'css/chat.css' %}">
+  <link rel="stylesheet" href="{% static 'css/ads.css' %}">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" href="{% static 'images/logo.png' %}" type="image/png">
   {% block extra_css %}{% endblock %}
@@ -17,7 +19,10 @@
       <img src="{% static 'images/logo.png' %}" alt="Logo" class="logo-img">
       <span class="site-name">L'Air du vol®</span>
     </div>
-    <button id="toggle-theme">🌙 Mode Sombre</button>
+    <button id="toggle-theme" class="theme-toggle">
+      <span class="theme-icon">🌙</span>
+      <span class="theme-text">Mode Sombre</span>
+    </button>
   </header>
 
   <!-- Menu latéral -->
@@ -28,64 +33,119 @@
         <a href="#">Exploration 📚 </a>
         <ul class="sous-menu">
           <li><a href="{% url 'liste_articles' %}">Articles 📰</a></li>
-          <li><a href="#">Médias 🖥️</a></li>
-          <li><a href="#">Liens 🔗</a></li>
+          <li><a href="{% url 'liste_medias' %}">Médias 🖥️</a></li>
+          <li><a href="{% url 'liste_liens' %}">Liens 🔗</a></li>
         </ul>
       </li>
       <li class="has-submenu">
         <a href="#">Communauté 👥</a>
         <ul class="sous-menu">
-          <li><a href="#">Devenir membre 📨</a></li>
-          <li><a href="#">Contribuer 🖊️</a></li>
-          <li><a href="#">Nous contacter 📞</a></li>
+          <li><a href="{% url 'contact' %}">Nous contacter 📞</a></li>
+          <li><a href="{% url 'forum' %}">Forum 💬</a></li>
         </ul>
+          {% if user.is_authenticated %}
+            <li class="sous-menu-title">Ajouter du contenu:</li>
+            <li><a href="{% url 'ajouter_article' %}">➕ Article</a></li>
+            <li><a href="{% url 'ajouter_media' %}">➕ Média</a></li>
+            <li><a href="{% url 'ajouter_lien' %}">➕ Lien</a></li>
+          {% endif %}
       </li>
-    <li><a href="#">CGU ⚠️</a></li>
+    <li><a href="#footer-cgu">CGU ⚠️</a></li>
     </ul>
     
-    <!-- Publicité sidebar -->
-    <div class="sidebar-ad">
-      <p>PUBLICITÉ</p>
-      <a href="https://www.flightsimulator.com/" target="_blank">
-        <img src="https://image.api.playstation.com/vulcan/ap/rnd/202509/1802/ed39778b97eafec593e5eea9cd762fab81976920c3e92720.jpg" alt="Microsoft Flight Simulator 2024">
-      </a>
+    <!-- Authentification -->
+    <div class="sidebar-auth">
+      {% if user.is_authenticated %}
+        <div class="auth-user">
+          <p>👤 {{ user.username }}</p>
+          <a href="{% url 'logout' %}" class="btn-logout">Se déconnecter</a>
+        </div>
+      {% else %}
+        <a href="{% url 'login' %}" class="btn-auth btn-login">🔐 Se connecter</a>
+        <a href="{% url 'signup' %}" class="btn-auth btn-signup">✏️ S'inscrire</a>
+      {% endif %}
     </div>
   </nav>
 
   <!-- Contenu principal -->
   <main class="main-content">
+    <!-- Bandeau d'avertissement pour utilisateurs non connectés -->
+    {% if not user.is_authenticated %}
+      <div class="premium-banner">
+        <div class="premium-banner-content">
+          <div class="premium-banner-text">
+            <h3><i class="fas fa-star"></i> Accès Premium - 100% Gratuit</h3>
+            <p>
+              Créez un compte gratuitement pour :
+              <ul style="margin: 0.5rem 0; padding-left: 1.5rem;">
+                <li><strong>Lire autant d'articles que vous le souhaitez</strong> (actuellement limité à 10 par jour)</li>
+                <li><strong>Zéro publicité</strong> - navigation fluide et sans interruption</li>
+                <li><strong>Créer vos propres articles et contenus</strong></li>
+                <li><strong>Participer à la communauté</strong> - forum sans restriction</li>
+              </ul>
+            </p>
+          </div>
+          <div class="premium-banner-actions">
+            <a href="{% url 'signup' %}" class="btn-premium-signup">
+              <i class="fas fa-user-plus"></i> S'inscrire Gratuitement
+            </a>
+            <a href="{% url 'login' %}" class="btn-premium-login">
+              <i class="fas fa-sign-in-alt"></i> Se Connecter
+            </a>
+          </div>
+          {% if request.article_remaining is not None %}
+            <div class="premium-banner-counter">
+              <i class="fas fa-newspaper"></i>
+              Articles restants aujourd'hui: <strong>{{ request.article_remaining }}/10</strong>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    {% endif %}
+
     {% block content %}{% endblock %}
   </main>
 
   <!-- Footer -->
-  <footer class="footer">
+  <footer class="footer" id="footer-cgu">
     <div class="footer-content">
       <h3>Conditions Générales d'Utilisation</h3>
       <p>En accédant au site <strong>L'Air du vol</strong>, vous acceptez nos conditions générales d'utilisation. Toute reproduction ou diffusion du contenu est interdite sans autorisation.</p>
-      <p>&copy; 2025 - L'Air du vol. Tous droits réservés.</p>
+      <p><strong>&copy; 2025 - L'Air du vol. Tous droits réservés.</strong></p>
+      <p>"Je suis Louis Rivoal, élève de 3ᵉ. J’ai créé ce site , mais il peut contenir des bugs. N’hésitez pas à me contacter ! Merci d'avance !" </p>
     </div>
   </footer>
 
   <!-- Bouton Assistant IA -->
-  <button id="ai-chat-btn">❔</button>
+  <button id="ai-chat-btn" title="Ouvrir l'assistant IA">💬</button>
 
   <!-- Modale Chat IA -->
   <div id="ai-chat-modal">
     <div class="ai-chat-header">
-      <h3>Assistant IA</h3>
-      <button id="close-ai-chat">&times;</button>
+      <div>
+        <h3>Assistant IA L'Air du Vol</h3>
+        <div class="ai-chat-header-subtitle">⚡ Réponses instantanées</div>
+      </div>
+      <button id="close-ai-chat" title="Fermer le chat">&times;</button>
     </div>
-    <div class="ai-chat-messages" id="ai-chat-messages"></div>
+    <div class="ai-chat-messages" id="ai-chat-messages">
+      <div class="ai-message ai system">
+        Bienvenue! 👋 Je suis l'assistant IA de L'Air du Vol. Comment puis-je vous aider?
+      </div>
+    </div>
     <div class="typing-indicator" id="typing-indicator">
       <div class="typing-dots"><span></span><span></span><span></span></div>
     </div>
     <div class="ai-chat-input">
-      <textarea id="ai-input" placeholder="Écrivez votre message..."></textarea>
-      <button id="ai-send-btn">Envoyer</button>
+      <textarea id="ai-input" placeholder="Posez votre question..." rows="1"></textarea>
+      <button id="ai-send-btn" title="Envoyer (Ctrl+Entrée)"></button>
     </div>
   </div>
 
+  <script src="{% static 'js/dark-mode.js' %}"></script>
   <script src="{% static 'js/main.js' %}"></script>
+  <script src="{% static 'js/ai-chat.js' %}"></script>
+  <script src="{% static 'js/ads.js' %}"></script>
   {% block extra_js %}{% endblock %}
 </body>
 </html>
