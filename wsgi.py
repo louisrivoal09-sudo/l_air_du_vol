@@ -11,6 +11,8 @@ if PROJECT_PATH not in sys.path:
     sys.path.insert(0, PROJECT_PATH)
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'dblouis.settings')
+django.setup()
+
 from django.core.wsgi import get_wsgi_application
 
 application = get_wsgi_application()
