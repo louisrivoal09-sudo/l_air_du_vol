@@ -8,3 +8,4 @@ pip install -r requirements.txt
 # Navigate and collect static files
 cd louis/dblouis
 python manage.py collectstatic --no-input
+cd ../..
