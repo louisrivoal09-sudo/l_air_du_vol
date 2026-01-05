@@ -2,32 +2,35 @@ import os
 import sys
 import django
 
-# Chemin absolu du répertoire contenant ce fichier wsgi.py
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+# Get the absolute path of this file's directory (project root)
+PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 
-# Ajouter d'abord louis au sys.path (contient dblouis)
-LOUIS_PATH = os.path.join(BASE_DIR, 'louis')
-if LOUIS_PATH not in sys.path:
-    sys.path.insert(0, LOUIS_PATH)
+# Add the django project directory to Python path
+# The Django project is at: PROJECT_ROOT/louis/dblouis/
+DJANGO_PROJECT_PATH = os.path.join(PROJECT_ROOT, 'louis', 'dblouis')
 
-# Puis ajouter la racine pour d'autres imports potentiels
-if BASE_DIR not in sys.path:
-    sys.path.insert(1, BASE_DIR)
+if DJANGO_PROJECT_PATH not in sys.path:
+    sys.path.insert(0, DJANGO_PROJECT_PATH)
 
-# Configurer Django
+# Also add project root
+if PROJECT_ROOT not in sys.path:
+    sys.path.insert(1, PROJECT_ROOT)
+
+# Set the Django settings module
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'dblouis.settings')
 
-try:
-    django.setup()
-except Exception as e:
-    print(f"Erreur lors du setup Django: {e}")
-    print(f"BASE_DIR: {BASE_DIR}")
-    print(f"LOUIS_PATH: {LOUIS_PATH}")
-    print(f"sys.path: {sys.path}")
-    import traceback
-    traceback.print_exc()
-    raise
+# Debug logging
+import logging
+logger = logging.getLogger(__name__)
+logger.info(f"WSGI: PROJECT_ROOT = {PROJECT_ROOT}")
+logger.info(f"WSGI: DJANGO_PROJECT_PATH = {DJANGO_PROJECT_PATH}")
+logger.info(f"WSGI: DJANGO_SETTINGS_MODULE = {os.environ.get('DJANGO_SETTINGS_MODULE')}")
 
+# Setup Django
+django.setup()
+
+# Get the WSGI application
 from django.core.wsgi import get_wsgi_application
-
 application = get_wsgi_application()
+
+

@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Mode Liseuse</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+
+        .topbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: white;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            z-index: 1000;
+        }
+
+        .topbar h1 {
+            font-size: 20px;
+        }
+
+        .main-content {
+            margin-top: 80px;
+            padding: 20px;
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        article {
+            background: white;
+            padding: 30px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        article h2 {
+            margin-bottom: 20px;
+            color: #222;
+        }
+
+        article p {
+            line-height: 1.6;
+            margin-bottom: 15px;
+            color: #555;
+        }
+
+        .user-config-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 5px 10px;
+        }
+
+        /* Reader mode styles */
+        html.reader-mode {
+            font-size: calc(16px * 1);
+        }
+
+        body.reader-mode {
+            background-color: #f5f1e8 !important;
+            color: #2c2c2c !important;
+            opacity: 1 !important;
+        }
+
+        /* Modal styles */
+        .user-settings-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 10000;
+        }
+
+        .user-settings-modal.active {
+            display: flex;
+        }
+
+        .settings-modal-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        .settings-modal-content {
+            position: relative;
+            background: white;
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+            margin: auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .settings-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .settings-close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .settings-modal-body {
+            padding: 20px;
+        }
+
+        .settings-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #eee;
+        }
+
+        .settings-tab-btn {
+            background: none;
+            border: none;
+            padding: 10px 15px;
+            cursor: pointer;
+            font-size: 14px;
+            border-bottom: 3px solid transparent;
+        }
+
+        .settings-tab-btn.active {
+            border-bottom-color: #007bff;
+            color: #007bff;
+        }
+
+        .settings-tab-content {
+            display: none;
+        }
+
+        .settings-tab-content.active {
+            display: block;
+        }
+
+        .settings-group {
+            margin-bottom: 20px;
+        }
+
+        .settings-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .settings-slider {
+            flex: 1;
+        }
+
+        .slider-value {
+            min-width: 50px;
+            text-align: right;
+            font-size: 13px;
+        }
+
+        .settings-select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .toggle-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+
+        .toggle-input {
+            width: 40px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .toggle-text {
+            font-size: 14px;
+        }
+
+        .settings-modal-footer {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            padding: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .btn-reset,
+        .btn-close {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .btn-reset {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .btn-close {
+            background: #007bff;
+            color: white;
+        }
+
+        .theme-quick-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .quick-theme-btn {
+            width: 40px;
+            height: 40px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background: white;
+            cursor: pointer;
+            font-size: 20px;
+        }
+
+        .quick-theme-btn:hover {
+            background: #f0f0f0;
+        }
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <h1>Test Mode Liseuse</h1>
+        <button class="user-config-btn" id="user-config-btn" title="Paramètres utilisateur">⚙️</button>
+    </div>
+
+    <div class="main-content">
+        <article>
+            <h2>Test du Mode Liseuse (Lecteur de Contenu)</h2>
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+            
+            <h3>Section 2</h3>
+            <p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+            
+            <h3>Section 3</h3>
+            <p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.</p>
+
+            <p>Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.</p>
+
+            <p>Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem.</p>
+        </article>
+    </div>
+
+    <script>
+        /**
+         * SYSTÈME DE CONFIGURATION UTILISATEUR UNIFIÉ - TEST
+         * Mode sombre + Liseuse + Paramètres utilisateur en une modale
+         */
+
+        class UserSettings {
+            constructor() {
+                this.settings = {
+                    // Dark mode
+                    theme: localStorage.getItem('theme') || 'auto',
+                    
+                    // Reader mode
+                    readerEnabled: localStorage.getItem('readerEnabled') === 'true',
+                    luminosity: parseInt(localStorage.getItem('luminosity')) || 100,
+                    fontFamily: localStorage.getItem('fontFamily') || 'system',
+                    fontSize: parseInt(localStorage.getItem('fontSize')) || 100,
+                    lineHeight: parseFloat(localStorage.getItem('lineHeight')) || 1.6,
+                    letterSpacing: parseFloat(localStorage.getItem('letterSpacing')) || 0,
+                    marginWidth: parseFloat(localStorage.getItem('marginWidth')) || 2,
+                    backgroundColor: localStorage.getItem('backgroundColor') || '#f5f1e8',
+                    textColor: localStorage.getItem('textColor') || '#2c2c2c',
+                    focusMode: localStorage.getItem('focusMode') === 'true',
+                    reduceAnimations: localStorage.getItem('reduceAnimations') !== 'false'
+                };
+                
+                this.modalOpen = false;
+                this.init();
+            }
+
+            init() {
+                console.log('✅ Système de configuration utilisateur initialisé');
+                this.createButton();
+                this.createModal();
+                this.attachListeners();
+                this.applyReaderMode(); // Apply reader mode on page load
+            }
+
+            createButton() {
+                const topbar = document.querySelector('.topbar');
+                if (!topbar) return;
+                const btn = document.getElementById('user-config-btn');
+                if (btn) {
+                    btn.addEventListener('click', () => this.openModal());
+                }
+            }
+
+            createModal() {
+                let modal = document.getElementById('user-settings-modal');
+                if (modal) modal.remove();
+
+                const modal_el = document.createElement('div');
+                modal_el.id = 'user-settings-modal';
+                modal_el.className = 'user-settings-modal';
+                modal_el.innerHTML = `
+                    <div class="settings-modal-overlay"></div>
+                    <div class="settings-modal-content">
+                        <div class="settings-modal-header">
+                            <h2>⚙️ Paramètres Utilisateur</h2>
+                            <button class="settings-close-btn" title="Fermer">✕</button>
+                        </div>
+
+                        <div class="settings-modal-body">
+                            <!-- Onglets -->
+                            <div class="settings-tabs">
+                                <button class="settings-tab-btn active" data-tab="reader">📖 Liseuse</button>
+                            </div>
+
+                            <!-- Contenu des onglets -->
+                            <div class="settings-tabs-content">
+                                
+                                <!-- Onglet Liseuse -->
+                                <div class="settings-tab-content active" data-tab="reader">
+                                    
+                                    <!-- Toggle Liseuse -->
+                                    <div class="settings-group">
+                                        <label class="toggle-label">
+                                            <input type="checkbox" id="reader-toggle" class="toggle-input" ${this.settings.readerEnabled ? 'checked' : ''}>
+                                            <span class="toggle-text">Activer le mode liseuse</span>
+                                        </label>
+                                    </div>
+
+                                    <!-- Luminosité -->
+                                    <div class="settings-group">
+                                        <label for="setting-luminosity">💡 Luminosité</label>
+                                        <div class="slider-container">
+                                            <input type="range" id="setting-luminosity" min="50" max="150" value="${this.settings.luminosity}" class="settings-slider">
+                                            <span class="slider-value" id="luminosity-value">${this.settings.luminosity}%</span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Taille Police -->
+                                    <div class="settings-group">
+                                        <label for="setting-fontSize">🔤 Taille du texte</label>
+                                        <div class="slider-container">
+                                            <input type="range" id="setting-fontSize" min="80" max="150" value="${this.settings.fontSize}" class="settings-slider">
+                                            <span class="slider-value" id="fontSize-value">${this.settings.fontSize}%</span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Police -->
+                                    <div class="settings-group">
+                                        <label for="setting-fontFamily">✍️ Police</label>
+                                        <select id="setting-fontFamily" class="settings-select">
+                                            <option value="system" ${this.settings.fontFamily === 'system' ? 'selected' : ''}>Système</option>
+                                            <option value="serif" ${this.settings.fontFamily === 'serif' ? 'selected' : ''}>Serif</option>
+                                            <option value="sans-serif" ${this.settings.fontFamily === 'sans-serif' ? 'selected' : ''}>Sans-serif</option>
+                                            <option value="mono" ${this.settings.fontFamily === 'mono' ? 'selected' : ''}>Monospace</option>
+                                        </select>
+                                    </div>
+
+                                    <!-- Interligne -->
+                                    <div class="settings-group">
+                                        <label for="setting-lineHeight">📏 Interligne</label>
+                                        <div class="slider-container">
+                                            <input type="range" id="setting-lineHeight" min="1.4" max="2.0" step="0.1" value="${this.settings.lineHeight}" class="settings-slider">
+                                            <span class="slider-value" id="lineHeight-value">${this.settings.lineHeight}</span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Espacement -->
+                                    <div class="settings-group">
+                                        <label for="setting-letterSpacing">⎸ Espacement lettres</label>
+                                        <div class="slider-container">
+                                            <input type="range" id="setting-letterSpacing" min="0" max="0.1" step="0.01" value="${this.settings.letterSpacing}" class="settings-slider">
+                                            <span class="slider-value" id="letterSpacing-value">${(this.settings.letterSpacing * 100).toFixed(0)}%</span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Marges -->
+                                    <div class="settings-group">
+                                        <label for="setting-marginWidth">📐 Largeur contenu</label>
+                                        <div class="slider-container">
+                                            <input type="range" id="setting-marginWidth" min="1" max="4" step="0.5" value="${this.settings.marginWidth}" class="settings-slider">
+                                            <span class="slider-value" id="marginWidth-value">${this.settings.marginWidth}em</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="settings-modal-footer">
+                            <button class="btn-reset">↺ Réinitialiser</button>
+                            <button class="btn-close">Fermer</button>
+                        </div>
+                    </div>
+                `;
+
+                document.body.appendChild(modal_el);
+            }
+
+            attachListeners() {
+                // Reader Toggle
+                document.getElementById('reader-toggle')?.addEventListener('change', (e) => {
+                    console.log('📖 Toggle reader mode:', e.target.checked);
+                    this.settings.readerEnabled = e.target.checked;
+                    this.applyReaderMode();
+                    this.save();
+                });
+
+                // Luminosité
+                document.getElementById('setting-luminosity')?.addEventListener('input', (e) => {
+                    this.settings.luminosity = parseInt(e.target.value);
+                    document.getElementById('luminosity-value').textContent = e.target.value + '%';
+                    this.applyReaderMode();
+                    this.save();
+                });
+
+                // Taille police
+                document.getElementById('setting-fontSize')?.addEventListener('input', (e) => {
+                    this.settings.fontSize = parseInt(e.target.value);
+                    document.getElementById('fontSize-value').textContent = e.target.value + '%';
+                    this.applyReaderMode();
+                    this.save();
+                });
+
+                // Police
+                document.getElementById('setting-fontFamily')?.addEventListener('change', (e) => {
+                    this.settings.fontFamily = e.target.value;
+                    this.applyReaderMode();
+                    this.save();
+                });
+
+                // Interligne
+                document.getElementById('setting-lineHeight')?.addEventListener('input', (e) => {
+                    this.settings.lineHeight = parseFloat(e.target.value);
+                    document.getElementById('lineHeight-value').textContent = parseFloat(e.target.value).toFixed(1);
+                    this.applyReaderMode();
+                    this.save();
+                });
+
+                // Espacement
+                document.getElementById('setting-letterSpacing')?.addEventListener('input', (e) => {
+                    this.settings.letterSpacing = parseFloat(e.target.value);
+                    document.getElementById('letterSpacing-value').textContent = (parseFloat(e.target.value) * 100).toFixed(0) + '%';
+                    this.applyReaderMode();
+                    this.save();
+                });
+
+                // Marges
+                document.getElementById('setting-marginWidth')?.addEventListener('input', (e) => {
+                    this.settings.marginWidth = parseFloat(e.target.value);
+                    document.getElementById('marginWidth-value').textContent = parseFloat(e.target.value).toFixed(1) + 'em';
+                    this.applyReaderMode();
+                    this.save();
+                });
+
+                // Close buttons
+                document.querySelector('.settings-close-btn')?.addEventListener('click', () => this.closeModal());
+                document.querySelector('.btn-close')?.addEventListener('click', () => this.closeModal());
+                document.querySelector('.settings-modal-overlay')?.addEventListener('click', () => this.closeModal());
+
+                // Reset
+                document.querySelector('.btn-reset')?.addEventListener('click', () => this.reset());
+            }
+
+            applyReaderMode() {
+                console.log('📖 applyReaderMode() - readerEnabled:', this.settings.readerEnabled);
+                
+                const html = document.documentElement;
+                const body = document.body;
+                
+                if (!this.settings.readerEnabled) {
+                    console.log('📖 Désactivation du mode liseuse');
+                    html.classList.remove('reader-mode');
+                    body.classList.remove('reader-mode');
+                    
+                    // Retirer le style si présent
+                    const oldStyle = document.getElementById('reader-style');
+                    if (oldStyle) oldStyle.remove();
+                    return;
+                }
+
+                console.log('📖 Activation du mode liseuse');
+                html.classList.add('reader-mode');
+                body.classList.add('reader-mode');
+
+                let styleEl = document.getElementById('reader-style');
+                if (!styleEl) {
+                    styleEl = document.createElement('style');
+                    styleEl.id = 'reader-style';
+                    document.head.appendChild(styleEl);
+                    console.log('📖 Style element créé et ajouté');
+                }
+
+                let fontFamily = 'inherit';
+                const fontMap = {
+                    serif: 'Georgia, "Times New Roman", serif',
+                    'sans-serif': '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                    mono: '"Courier New", monospace',
+                    georgia: 'Georgia, serif',
+                    verdana: 'Verdana, sans-serif'
+                };
+                fontFamily = fontMap[this.settings.fontFamily] || 'inherit';
+
+                // Calculer l'opacité basée sur la luminosité
+                const opacity = this.settings.luminosity / 100;
+                
+                let css = `
+                    /* Mode liseuse - Styles généraux */
+                    html.reader-mode {
+                        font-size: calc(16px * ${this.settings.fontSize / 100}) !important;
+                    }
+
+                    body.reader-mode {
+                        background-color: ${this.settings.backgroundColor} !important;
+                        color: ${this.settings.textColor} !important;
+                        opacity: ${opacity} !important;
+                        font-family: ${fontFamily} !important;
+                        line-height: ${this.settings.lineHeight} !important;
+                        letter-spacing: ${this.settings.letterSpacing}em !important;
+                    }
+
+                    body.reader-mode * {
+                        font-family: ${fontFamily} !important;
+                        line-height: ${this.settings.lineHeight} !important;
+                        letter-spacing: ${this.settings.letterSpacing}em !important;
+                    }
+
+                    body.reader-mode .main-content {
+                        max-width: ${this.settings.marginWidth * 20}em !important;
+                        margin: 0 auto !important;
+                        padding: 2rem ${this.settings.marginWidth}em !important;
+                    }
+                `;
+
+                styleEl.textContent = css;
+                console.log('📖 CSS appliqué avec luminosité:', this.settings.luminosity, 'fontSize:', this.settings.fontSize);
+            }
+
+            openModal() {
+                const modal = document.getElementById('user-settings-modal');
+                if (modal) {
+                    modal.classList.add('active');
+                    this.modalOpen = true;
+                }
+            }
+
+            closeModal() {
+                const modal = document.getElementById('user-settings-modal');
+                if (modal) {
+                    modal.classList.remove('active');
+                    this.modalOpen = false;
+                }
+            }
+
+            reset() {
+                this.settings = {
+                    theme: 'auto',
+                    readerEnabled: false,
+                    luminosity: 100,
+                    fontFamily: 'system',
+                    fontSize: 100,
+                    lineHeight: 1.6,
+                    letterSpacing: 0,
+                    marginWidth: 2,
+                    backgroundColor: '#f5f1e8',
+                    textColor: '#2c2c2c',
+                    focusMode: false,
+                    reduceAnimations: true
+                };
+
+                this.save();
+                this.applyReaderMode();
+                this.createModal();
+                this.attachListeners();
+                console.log('↺ Paramètres réinitialisés');
+            }
+
+            save() {
+                localStorage.setItem('theme', this.settings.theme);
+                localStorage.setItem('readerEnabled', this.settings.readerEnabled);
+                localStorage.setItem('luminosity', this.settings.luminosity);
+                localStorage.setItem('fontFamily', this.settings.fontFamily);
+                localStorage.setItem('fontSize', this.settings.fontSize);
+                localStorage.setItem('lineHeight', this.settings.lineHeight);
+                localStorage.setItem('letterSpacing', this.settings.letterSpacing);
+                localStorage.setItem('marginWidth', this.settings.marginWidth);
+                localStorage.setItem('backgroundColor', this.settings.backgroundColor);
+                localStorage.setItem('textColor', this.settings.textColor);
+                localStorage.setItem('focusMode', this.settings.focusMode);
+                localStorage.setItem('reduceAnimations', this.settings.reduceAnimations);
+            }
+        }
+
+        // Initialiser au chargement
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+                window.UserSettings = new UserSettings();
+            });
+        } else {
+            window.UserSettings = new UserSettings();
+        }
+    </script>
+</body>
+</html>
