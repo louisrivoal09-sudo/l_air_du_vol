@@ -397,6 +397,133 @@ def create_auth_notifications(request):
             message='Créez un compte pour commenter, ajouter des articles et accéder aux forums!',
         )
 
+
+# ============================================================================
+# SYSTÈME DE LIKE/DISLIKE
+# ============================================================================
+
+@login_required
+@require_http_methods(["POST"])
+def toggle_article_like(request, article_id):
+    """Toggle like/dislike sur un article"""
+    try:
+        from .models import Article, ArticleLike
+        article = Article.objects.get(id=article_id)
+        vote_type = int(request.POST.get('type', 1))
+        
+        # Vérifier si un vote existe
+        vote = ArticleLike.objects.filter(article=article, utilisateur=request.user).first()
+        
+        if vote:
+            if vote.type_vote == vote_type:
+                # Supprimer le vote
+                vote.delete()
+                return JsonResponse({'success': True, 'action': 'removed', 'likes': article.likes.filter(type_vote=1).count()})
+            else:
+                # Changer le vote
+                vote.type_vote = vote_type
+                vote.save()
+        else:
+            # Créer un nouveau vote
+            ArticleLike.objects.create(article=article, utilisateur=request.user, type_vote=vote_type)
+        
+        likes = article.likes.filter(type_vote=1).count()
+        dislikes = article.likes.filter(type_vote=-1).count()
+        
+        return JsonResponse({
+            'success': True,
+            'likes': likes,
+            'dislikes': dislikes
+        })
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=400)
+
+
+@login_required
+@require_http_methods(["POST"])
+def toggle_forum_sujet_like(request, sujet_id):
+    """Toggle like/dislike sur un sujet du forum"""
+    try:
+        from .models import ForumSujet, ForumSujetLike
+        sujet = ForumSujet.objects.get(id=sujet_id)
+        vote_type = int(request.POST.get('type', 1))
+        
+        vote = ForumSujetLike.objects.filter(sujet=sujet, utilisateur=request.user).first()
+        
+        if vote:
+            if vote.type_vote == vote_type:
+                vote.delete()
+                return JsonResponse({'success': True, 'action': 'removed'})
+            else:
+                vote.type_vote = vote_type
+                vote.save()
+        else:
+            ForumSujetLike.objects.create(sujet=sujet, utilisateur=request.user, type_vote=vote_type)
+        
+        likes = sujet.likes.filter(type_vote=1).count()
+        dislikes = sujet.likes.filter(type_vote=-1).count()
+        
+        return JsonResponse({'success': True, 'likes': likes, 'dislikes': dislikes})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=400)
+
+
+@login_required
+@require_http_methods(["POST"])
+def toggle_forum_reponse_like(request, reponse_id):
+    """Toggle like/dislike sur une réponse du forum"""
+    try:
+        from .models import ForumReponse, ForumReponseLike
+        reponse = ForumReponse.objects.get(id=reponse_id)
+        vote_type = int(request.POST.get('type', 1))
+        
+        vote = ForumReponseLike.objects.filter(reponse=reponse, utilisateur=request.user).first()
+        
+        if vote:
+            if vote.type_vote == vote_type:
+                vote.delete()
+                return JsonResponse({'success': True, 'action': 'removed'})
+            else:
+                vote.type_vote = vote_type
+                vote.save()
+        else:
+            ForumReponseLike.objects.create(reponse=reponse, utilisateur=request.user, type_vote=vote_type)
+        
+        likes = reponse.likes.filter(type_vote=1).count()
+        dislikes = reponse.likes.filter(type_vote=-1).count()
+        
+        return JsonResponse({'success': True, 'likes': likes, 'dislikes': dislikes})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=400)
+
+
+@login_required
+@require_http_methods(["POST"])
+def toggle_media_like(request, media_id):
+    """Toggle like/dislike sur un média"""
+    try:
+        from .models import Media, MediaLike
+        media = Media.objects.get(id=media_id)
+        vote_type = int(request.POST.get('type', 1))
+        
+        vote = MediaLike.objects.filter(media=media, utilisateur=request.user).first()
+        
+        if vote:
+            if vote.type_vote == vote_type:
+                vote.delete()
+                return JsonResponse({'success': True, 'action': 'removed'})
+            else:
+                vote.type_vote = vote_type
+                vote.save()
+        else:
+            MediaLike.objects.create(media=media, utilisateur=request.user, type_vote=vote_type)
+        
+        likes = media.likes.filter(type_vote=1).count()
+        dislikes = media.likes.filter(type_vote=-1).count()
+        
+        return JsonResponse({'success': True, 'likes': likes, 'dislikes': dislikes})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=400)
 # ============================================================================
 # LIKES/DISLIKES - Articles
 # ============================================================================

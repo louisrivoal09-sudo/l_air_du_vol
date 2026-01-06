@@ -607,7 +607,6 @@ def signup_view(request):
 
 def normalize_query(query):
     """Nettoie et normalise une requête en corrigeant les caractères spéciaux"""
-    # Remplace les caractères accentués cassés
     query = query.replace('é', 'e').replace('è', 'e').replace('ê', 'e')
     query = query.replace('à', 'a').replace('â', 'a')
     query = query.replace('ù', 'u').replace('û', 'u')
@@ -620,14 +619,11 @@ def correct_spelling(query):
     """Corrige les fautes simples de saisie avec fuzzy matching"""
     mots = query.split()
     mots_corriges = []
-    
-    # Mots-clés courants du site
     mots_cles = ['article', 'vidéo', 'podcast', 'média', 'lien', 'ressource', 
                  'aviation', 'avion', 'pilote', 'vol', 'actualité', 'news', 'aide']
     
     for mot in mots:
         if len(mot) > 2:
-            # Trouve les correspondances proches
             matches = difflib.get_close_matches(mot, mots_cles, n=1, cutoff=0.6)
             if matches:
                 mots_corriges.append(matches[0])
@@ -640,28 +636,76 @@ def correct_spelling(query):
 
 
 def is_greeting(query):
-    """Détecte les salutations et réponses simples"""
+    """Détecte les salutations"""
     greetings = ['salut', 'bonjour', 'bonsoir', 'coucou', 'allo', 'hi', 'hello',
-                 'ça va', 'quoi', 'comment', 'etes vous', 'tu vas', 'merci', 'thanks']
+                 'ça va', 'comment', 'quoi', 'merci', 'thanks', 'svp', 'please']
     return any(g in query for g in greetings)
 
 
-def search_web_for_planes(query):
-    """Cherche des informations sur les avions via une API gratuite"""
-    try:
-        # Utiliser DuckDuckGo API (gratuit, sans clé API)
-        search_url = f"https://duckduckgo.com/?q=avion+{quote(query)}&format=json"
-        response = requests.get(search_url, timeout=3)
-        if response.status_code == 200:
-            return True  # Résultats trouvés
-    except:
-        pass
-    return False
+# Réponses intelligentes par contexte
+KNOWLEDGE_BASE = {
+    'aviation': {
+        'keywords': ['aviation', 'avion', 'pilote', 'vol', 'plane', 'aircraft'],
+        'response': "L'aviation est passionnante! 🛫 Nous avons de nombreux articles sur:\n📰 Les types d'avions • ✈️ L'histoire de l'aviation • 🎓 Comment devenir pilote\n\nQue veux-tu savoir exactement?"
+    },
+    'pilote': {
+        'keywords': ['pilote', 'devenir pilote', 'comment', 'formation', 'école'],
+        'response': "Pour devenir pilote, il faut:\n1. 📚 Études théoriques • 2. ✈️ Heures de vol • 3. 📋 Examen final\nVeux-tu plus de détails sur une étape?"
+    },
+    'avion_rapide': {
+        'keywords': ['rapide', 'vitesse', 'plus rapide', 'concorde', 'supersonic'],
+        'response': "🚀 Les avions les plus rapides incluent le Concorde et les avions militaires supersoniques!\nNous avons des articles détaillés. Lequel t'intéresse?"
+    },
+    'météo': {
+        'keywords': ['météo', 'météorologie', 'nuages', 'tempête', 'orage'],
+        'response': "La météo est cruciale en aviation! ⛈️ Les pilotes doivent comprendre:\n☁️ Types de nuages • 💨 Vents • 🌧️ Conditions dangereuses\nTu veux en savoir plus sur un aspect?"
+    },
+    'securite': {
+        'keywords': ['sécurité', 'sécurisé', 'danger', 'crash', 'accident'],
+        'response': "✈️ L'aviation est très sûre! Découvre comment:\n🛡️ Les systèmes de sécurité • 🔧 Maintenance rigoureuse • 📡 Contrôle aérien\nIntéressé par un sujet spécifique?"
+    },
+    'helicoptere': {
+        'keywords': ['hélicoptère', 'helicoptere', 'rotor', 'hélico'],
+        'response': "🚁 Les hélicoptères sont fascinants! Ils peuvent:\n📍 Décoller verticalement • 🔄 Voler en arrière • 🏥 Sauver des vies\nTu veux apprendre comment ils fonctionnent?"
+    },
+    'drone': {
+        'keywords': ['drone', 'drône', 'uav', 'sans pilote'],
+        'response': "🚁 Les drones révolutionnent l'aviation! Utilités:\n📸 Photography • 🚚 Livraison • 🔍 Inspection\nCurieux d'en savoir plus?"
+    },
+}
+
+
+def get_contextual_response(query):
+    """Génère une réponse intelligente basée sur le contexte"""
+    query_lower = query.lower()
+    
+    # Cherche dans la base de connaissances
+    for key, knowledge in KNOWLEDGE_BASE.items():
+        if any(kw in query_lower for kw in knowledge['keywords']):
+            return knowledge['response']
+    
+    # Réponses génériques par type de question
+    if any(w in query_lower for w in ['pourquoi', 'why', 'expl', 'comment ça', 'how']):
+        return "🤔 Bonne question! Cherchons une explication...\nTu peux aussi consulter nos articles détaillés sur le sujet."
+    
+    if any(w in query_lower for w in ['quand', 'when', 'date', 'année', 'histoire']):
+        return "📅 C'est une question historique! Notre section Articles a plein d'infos!\nTu cherches une période spécifique?"
+    
+    if any(w in query_lower for w in ['où', 'where', 'quel pays', 'location', 'aéroport']):
+        return "📍 C'est une question géographique! Consulte notre section Ressources pour des cartes et infos d'aéroports."
+    
+    if any(w in query_lower for w in ['prix', 'coût', 'combien', 'cost', 'price']):
+        return "💰 Questions financières! Les coûts varient énormément selon le contexte. Dis-moi ce qui t'intéresse!"
+    
+    if any(w in query_lower for w in ['aide', 'help', 'support', 'besoin', 'probleme']):
+        return "🆘 Je suis là pour t'aider!\nPeux-tu préciser ta question? Je peux t'aider sur:\n📰 Articles • 🎥 Vidéos • 🔗 Ressources • ✈️ Avions"
+    
+    return None
 
 
 @require_http_methods(["POST"])
 def chat_with_ai(request):
-    """IA locale améliorée - Recherche dans la base de données + Web + gestion fautes"""
+    """IA CONVERSATIONNELLE AMÉLIORÉE - Vraie réponse aux questions"""
     try:
         data = json.loads(request.body)
         original_query = data.get('message', '').strip()
@@ -669,44 +713,39 @@ def chat_with_ai(request):
         
         if not query or len(query) < 1:
             return JsonResponse({
-                'message': 'Posez une question sur l\'aviation, les articles, médias ou liens du site! 😊'
+                'message': 'Pose-moi une question! 😊 Je peux t\'aider sur:\n📰 Articles • 🎥 Vidéos • 🔗 Ressources • ✈️ Avions'
             })
         
-        # Gestion des salutations simples
+        # 1. Gestion des salutations
         if is_greeting(query):
-            greeting_responses = [
-                "Salut! 👋 Comment puis-je t'aider concernant l'aviation? 🛫",
-                "Bonjour! 😊 Que souhaites-tu savoir sur L'Air du Vol?",
-                "Coucou! ✈️ Pose-moi une question sur les articles, vidéos ou ressources!",
-                "Hello! 🌍 Je suis là pour t'aider à explorer le monde de l'aviation!"
-            ]
             import random
+            greetings = [
+                "Salut! 👋 Comment puis-je t'aider aujourd'hui?",
+                "Bonjour! 😊 Bienvenue sur L'Air du Vol. Que veux-tu savoir?",
+                "Coucou! ✈️ Je suis là pour répondre à tes questions!",
+                "Hello! 🌍 Pose-moi n'importe quelle question sur l'aviation!"
+            ]
             return JsonResponse({
                 'success': True,
-                'message': random.choice(greeting_responses),
+                'message': random.choice(greetings),
                 'results': []
             })
         
-        # Correction orthographique
+        # 2. Corrige les fautes
         corrected_query = correct_spelling(query)
-        
-        # Normalisation
         clean_query = normalize_query(corrected_query)
         
-        # Mots-clés pour détecter le type de question
-        is_about_articles = any(w in clean_query for w in ['article', 'lire', 'news', 'actualité', 'nouvelle'])
-        is_about_media = any(w in clean_query for w in ['vidéo', 'podcast', 'média', 'video', 'audio', 'youtube'])
-        is_about_links = any(w in clean_query for w in ['lien', 'ressource', 'site', 'reference'])
-        is_about_aviation = any(w in clean_query for w in ['avion', 'aviation', 'pilot', 'vol', 'plane', 'aircraft'])
-        is_about_planes = any(w in clean_query for w in ['a380', 'boeing', 'airbus', 'cessna', 'concorde', 'avion'])
+        # 3. Cherche une réponse contextuelle intelligente
+        contextual_response = get_contextual_response(clean_query)
         
+        # 4. Cherche dans la base de données
         results = []
         
-        # Recherche dans les articles
         articles = Article.objects.filter(
             Q(titre__icontains=clean_query) | Q(resume__icontains=clean_query) | 
-            Q(theme1_titre__icontains=clean_query) | Q(categorie__icontains=clean_query)
-        )[:3]
+            Q(theme1_titre__icontains=clean_query) | Q(theme2_titre__icontains=clean_query) |
+            Q(theme3_titre__icontains=clean_query)
+        ).order_by('-date_publication')[:2]
         
         if articles:
             for article in articles:
@@ -717,11 +756,10 @@ def chat_with_ai(request):
                     'resume': article.resume[:100] + '...'
                 })
         
-        # Recherche dans les médias
         medias = Media.objects.filter(
             Q(titre__icontains=clean_query) | Q(description__icontains=clean_query) |
             Q(type_media__icontains=clean_query)
-        )[:3]
+        ).order_by('-date_publication')[:2]
         
         if medias:
             for media in medias:
@@ -732,11 +770,9 @@ def chat_with_ai(request):
                     'description': media.description[:100] + '...'
                 })
         
-        # Recherche dans les liens
         liens = Lien.objects.filter(
-            Q(titre__icontains=clean_query) | Q(description__icontains=clean_query) |
-            Q(categorie__icontains=clean_query)
-        )[:3]
+            Q(titre__icontains=clean_query) | Q(description__icontains=clean_query)
+        )[:2]
         
         if liens:
             for lien in liens:
@@ -747,7 +783,6 @@ def chat_with_ai(request):
                     'description': lien.description[:100] + '...'
                 })
         
-        # Recherche dans le catalogue d'avions
         avions = Avion.objects.filter(
             Q(nom__icontains=clean_query) | Q(description__icontains=clean_query) |
             Q(constructeur__icontains=clean_query)
@@ -759,24 +794,26 @@ def chat_with_ai(request):
                     'type': 'avion',
                     'titre': avion.nom,
                     'slug': avion.slug,
-                    'description': avion.description[:100] + '...' if avion.description else 'Catalogue d\'avions'
+                    'description': f"{avion.constructeur} - {avion.type_avion}"
                 })
         
-        # Réponse personnalisée selon le type de question
-        if results:
-            response_text = f"✨ J'ai trouvé {len(results)} résultat{'s' if len(results) > 1 else ''} pour '{original_query}' :"
+        # 5. Construit la réponse finale
+        if contextual_response:
+            # On a une réponse intelligente + résultats
+            response_text = contextual_response
+        elif results:
+            # On a trouvé des résultats
+            response_text = f"✨ J'ai trouvé {len(results)} résultat{'s' if len(results) > 1 else ''}:\n"
         else:
-            # Messages d'aide contextuels
-            if is_about_articles:
-                response_text = "📰 Aucun article trouvé sur ce sujet. Consultez la section Articles pour explorer d'autres contenus!"
-            elif is_about_media:
-                response_text = "🎥 Aucune vidéo ou podcast trouvé. Découvrez nos médias dans la section dédiée!"
-            elif is_about_links:
-                response_text = "🔗 Aucune ressource trouvée. Parcourez nos liens utiles dans la section Ressources!"
-            elif is_about_aviation or is_about_planes:
-                response_text = "✈️ Pas de résultat direct. Essayez de poser une question plus détaillée sur un type d'avion ou un sujet spécifique!"
-            else:
-                response_text = "🤖 Comment puis-je t'aider? Pose-moi une question sur:\n📰 Articles • 🎥 Vidéos • 🔗 Ressources • ✈️ Avions"
+            # Pas de résultats - réponse d'aide
+            response_text = (
+                "Hmm, je n'ai pas trouvé d'informations spécifiques sur ce sujet.\n\n"
+                "💡 Essaie plutôt:\n"
+                "✈️ Poser une question sur l'aviation en général\n"
+                "📰 Consulter nos articles\n"
+                "🎥 Regarder nos vidéos\n\n"
+                "Ou dis-moi ce que tu veux vraiment savoir! 😊"
+            )
         
         return JsonResponse({
             'success': True,
@@ -787,6 +824,8 @@ def chat_with_ai(request):
     except json.JSONDecodeError:
         return JsonResponse({'message': 'Erreur de traitement. Réessayez! 😊'}, status=400)
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         return JsonResponse({'message': 'Désolé, une erreur est survenue! 🤖'}, status=500)
 
 
