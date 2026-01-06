@@ -5,8 +5,7 @@ services:
     startCommand: >
       cd louis/dblouis &&
       python manage.py migrate --no-input &&
-      cd ../.. &&
-      gunicorn wsgi:application --bind 0.0.0.0:$PORT
+      gunicorn --chdir ../.. wsgi:application --bind 0.0.0.0:$PORT
     buildCommand: >
       pip install --upgrade pip &&
       pip install -r requirements.txt &&
