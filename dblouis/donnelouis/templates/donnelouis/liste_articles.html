@@ -77,8 +77,8 @@
     
     <!-- Compteurs like/dislike -->
     <div class="like-dislike-bar" style="background: #f0f0f0; padding: 0.5rem; display: flex; gap: 1rem; justify-content: center; font-size: 0.9rem; border-bottom: 1px solid #e0e0e0;">
-      <span class="likes-count">👍 {{ article.likes.all|length }}</span>
-      <span class="dislikes-count">👎 {{ article.likes.all|dictsort:"type_vote"|length }}</span>
+      <span class="likes-count">👍 {{ article.likes.count }}</span>
+      <span class="dislikes-count">👎 0</span>
     </div>
     
     {% if article.image_principale %}
