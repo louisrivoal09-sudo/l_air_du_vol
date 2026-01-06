@@ -432,10 +432,6 @@ document.getElementById('article-report-form').addEventListener('submit', async 
 });
 
 // Charger les commentaires au chargement
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', loadComments);
-} else {
-  loadComments();
-}
+document.addEventListener('DOMContentLoaded', loadComments);
 </script>
 {% endblock %}
