@@ -137,6 +137,24 @@
 
 {% block extra_js %}
 <script>
+// Récupérer le CSRF token
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+const csrftoken = getCookie('csrftoken');
+
 // Barre de progression
 window.addEventListener('scroll', () => {
   const progressBar = document.getElementById('reading-progress-bar');
@@ -403,18 +421,20 @@ async function toggleArticleLike() {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        'X-CSRFToken': csrftoken
       }
     });
+    
+    const data = await response.json();
     
     if (response.ok) {
       loadLikeCounts();
     } else {
-      alert('✗ Erreur lors du vote');
+      alert('✗ ' + (data.error || 'Erreur lors du vote'));
     }
   } catch (error) {
     console.error('Erreur like:', error);
-    alert('✗ Erreur lors du vote');
+    alert('✗ Erreur lors du vote. Êtes-vous connecté?');
   }
 }
 
@@ -426,18 +446,20 @@ async function toggleArticleDislike() {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        'X-CSRFToken': csrftoken
       }
     });
+    
+    const data = await response.json();
     
     if (response.ok) {
       loadLikeCounts();
     } else {
-      alert('✗ Erreur lors du vote');
+      alert('✗ ' + (data.error || 'Erreur lors du vote'));
     }
   } catch (error) {
     console.error('Erreur dislike:', error);
-    alert('✗ Erreur lors du vote');
+    alert('✗ Erreur lors du vote. Êtes-vous connecté?');
   }
 }
 
