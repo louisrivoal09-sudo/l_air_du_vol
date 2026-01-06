@@ -534,10 +534,6 @@ def toggle_article_dislike(request, article_id):
         return JsonResponse({'error': 'Article non trouvé'}, status=404)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
-    except Article.DoesNotExist:
-        return JsonResponse({'error': 'Article non trouvé'}, status=404)
-    except Exception as e:
-        return JsonResponse({'error': str(e)}, status=400)
 
 
 @login_required

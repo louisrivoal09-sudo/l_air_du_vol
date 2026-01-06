@@ -391,11 +391,24 @@ document.getElementById('article-report-form').addEventListener('submit', async 
 
 // Charger les likes au démarrage
 async function loadLikeCounts() {
-  const articleId = document.querySelector('[data-article-id]').dataset.articleId;
+  console.log('loadLikeCounts called');
+  const articleIdElement = document.querySelector('[data-article-id]');
+  if (!articleIdElement) {
+    console.error('Article element not found');
+    return;
+  }
+  
+  const articleId = articleIdElement.dataset.articleId;
+  console.log('Loading likes for article:', articleId);
+  
   try {
     const response = await fetch(`/api/article/${articleId}/likes/`);
+    console.log('Likes API response status:', response.status);
+    
     if (response.ok) {
       const data = await response.json();
+      console.log('Likes data:', data);
+      
       document.getElementById('like-count').textContent = data.likes_count || 0;
       document.getElementById('dislike-count').textContent = data.dislikes_count || 0;
       
@@ -407,6 +420,8 @@ async function loadLikeCounts() {
         document.getElementById('like-btn').style.backgroundColor = '#10B981';
         document.getElementById('dislike-btn').style.backgroundColor = '#991B1B';
       }
+    } else {
+      console.error('Failed to load likes, status:', response.status);
     }
   } catch (error) {
     console.error('Erreur chargement likes:', error);
@@ -415,51 +430,83 @@ async function loadLikeCounts() {
 
 // Toggle Like
 async function toggleArticleLike() {
-  const articleId = document.querySelector('[data-article-id]').dataset.articleId;
+  console.log('toggleArticleLike called');
+  const articleIdElement = document.querySelector('[data-article-id]');
+  if (!articleIdElement) {
+    alert('✗ Erreur: ID article non trouvé');
+    return;
+  }
+  
+  const articleId = articleIdElement.dataset.articleId;
+  console.log('Article ID:', articleId);
+  console.log('CSRF Token:', csrftoken);
+  
   try {
-    const response = await fetch(`/api/article/${articleId}/like/toggle/`, {
+    const url = `/api/article/${articleId}/like/toggle/`;
+    console.log('Fetching:', url);
+    
+    const response = await fetch(url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-CSRFToken': csrftoken
+        'X-CSRFToken': csrftoken || ''
       }
     });
     
+    console.log('Response status:', response.status);
     const data = await response.json();
+    console.log('Response data:', data);
     
     if (response.ok) {
       loadLikeCounts();
+      alert('✓ Vote enregistré!');
     } else {
       alert('✗ ' + (data.error || 'Erreur lors du vote'));
     }
   } catch (error) {
     console.error('Erreur like:', error);
-    alert('✗ Erreur lors du vote. Êtes-vous connecté?');
+    alert('✗ Erreur: ' + error.message);
   }
 }
 
 // Toggle Dislike
 async function toggleArticleDislike() {
-  const articleId = document.querySelector('[data-article-id]').dataset.articleId;
+  console.log('toggleArticleDislike called');
+  const articleIdElement = document.querySelector('[data-article-id]');
+  if (!articleIdElement) {
+    alert('✗ Erreur: ID article non trouvé');
+    return;
+  }
+  
+  const articleId = articleIdElement.dataset.articleId;
+  console.log('Article ID:', articleId);
+  console.log('CSRF Token:', csrftoken);
+  
   try {
-    const response = await fetch(`/api/article/${articleId}/dislike/toggle/`, {
+    const url = `/api/article/${articleId}/dislike/toggle/`;
+    console.log('Fetching:', url);
+    
+    const response = await fetch(url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-CSRFToken': csrftoken
+        'X-CSRFToken': csrftoken || ''
       }
     });
     
+    console.log('Response status:', response.status);
     const data = await response.json();
+    console.log('Response data:', data);
     
     if (response.ok) {
       loadLikeCounts();
+      alert('✓ Vote enregistré!');
     } else {
       alert('✗ ' + (data.error || 'Erreur lors du vote'));
     }
   } catch (error) {
     console.error('Erreur dislike:', error);
-    alert('✗ Erreur lors du vote. Êtes-vous connecté?');
+    alert('✗ Erreur: ' + error.message);
   }
 }
 
