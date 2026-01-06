@@ -1,0 +1,88 @@
+{% extends 'donnelouis/base.html' %}
+{% load static %}
+
+{% block title %}Ajouter un avion - L'Air du Vol®{% endblock %}
+
+{% block content %}
+<div class="add-content-container">
+  <div class="add-content-card">
+    <div class="add-content-header">
+      <h1>✈️ Ajouter un nouvel avion</h1>
+      <p>Remplissez le formulaire ci-dessous pour ajouter un avion au catalogue</p>
+    </div>
+
+    <!-- Messages -->
+    {% if messages %}
+      <div class="messages">
+        {% for message in messages %}
+          <div class="alert alert-{{ message.tags }}">
+            {{ message }}
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    <!-- Formulaire -->
+    <form method="POST" class="add-content-form" id="avion-form">
+      {% csrf_token %}
+
+      <!-- SECTION 1: Informations de base -->
+      <div class="form-section">
+        <h2 class="section-title">📋 Informations de base</h2>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label for="id_nom">Nom de l'avion:</label>
+            {{ form.nom }}
+            {% if form.nom.errors %}<span class="error">{{ form.nom.errors.0 }}</span>{% endif %}
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="id_constructeur">Constructeur:</label>
+            {{ form.constructeur }}
+            {% if form.constructeur.errors %}<span class="error">{{ form.constructeur.errors.0 }}</span>{% endif %}
+          </div>
+          <div class="form-group">
+            <label for="id_type_avion">Type d'avion:</label>
+            {{ form.type_avion }}
+            {% if form.type_avion.errors %}<span class="error">{{ form.type_avion.errors.0 }}</span>{% endif %}
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="id_annee_premier_vol">Année du premier vol:</label>
+            {{ form.annee_premier_vol }}
+            {% if form.annee_premier_vol.errors %}<span class="error">{{ form.annee_premier_vol.errors.0 }}</span>{% endif %}
+          </div>
+          <div class="form-group">
+            <label for="id_capacite">Capacité (passagers):</label>
+            {{ form.capacite }}
+            {% if form.capacite.errors %}<span class="error">{{ form.capacite.errors.0 }}</span>{% endif %}
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="id_description">Description:</label>
+          {{ form.description }}
+          {% if form.description.errors %}<span class="error">{{ form.description.errors.0 }}</span>{% endif %}
+        </div>
+
+        <div class="form-group">
+          <label for="id_image_principale">URL de l'image principale:</label>
+          {{ form.image_principale }}
+          {% if form.image_principale.errors %}<span class="error">{{ form.image_principale.errors.0 }}</span>{% endif %}
+        </div>
+      </div>
+
+      <!-- Boutons d'action -->
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">✈️ Ajouter l'avion</button>
+        <a href="{% url 'liste_catalogue' %}" class="btn btn-secondary">Annuler</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

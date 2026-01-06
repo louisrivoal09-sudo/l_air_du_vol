@@ -1,0 +1,278 @@
+{% extends 'donnelouis/base.html' %}
+{% load static %}
+
+{% block title %}{{ titre }} - L'Air du Vol®{% endblock %}
+
+{% block content %}
+<div class="ajouter-contenu-container">
+  <!-- Hero Section -->
+  <div class="ajouter-hero">
+    <h1>{{ titre }}</h1>
+    <p>Remplissez le formulaire ci-dessous pour ajouter votre contenu</p>
+  </div>
+
+  <!-- Messages -->
+  {% if messages %}
+    <div class="messages">
+      {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+          {{ message }}
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <!-- Formulaire -->
+  <div class="form-wrapper">
+    <form method="POST" class="contenu-form">
+      {% csrf_token %}
+      
+      <!-- Affichage des erreurs globales -->
+      {% if form.non_field_errors %}
+        <div class="alert alert-error">
+          {% for error in form.non_field_errors %}
+            <p>{{ error }}</p>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      <!-- Champs du formulaire -->
+      {% for field in form %}
+        <div class="form-group">
+          <label for="{{ field.id_for_label }}">{{ field.label }}:</label>
+          
+          {% if field.field.widget.input_type == 'textarea' %}
+            <textarea name="{{ field.name }}" id="{{ field.id_for_label }}" class="form-control" 
+                      {% if field.field.required %}required{% endif %} 
+                      rows="5">{{ field.value|default:'' }}</textarea>
+          {% elif field.field.widget.input_type == 'select' %}
+            {{ field }}
+          {% elif field.field.widget.input_type == 'date' %}
+            <input type="date" name="{{ field.name }}" id="{{ field.id_for_label }}" 
+                   class="form-control" {% if field.field.required %}required{% endif %} 
+                   value="{{ field.value|default:'' }}">
+          {% else %}
+            {{ field }}
+          {% endif %}
+          
+          {% if field.errors %}
+            <span class="error">{{ field.errors.0 }}</span>
+          {% endif %}
+          
+          {% if field.help_text %}
+            <span class="help-text">{{ field.help_text|safe }}</span>
+          {% endif %}
+        </div>
+      {% endfor %}
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary btn-large">
+          ✓ Ajouter
+        </button>
+        <a href="javascript:history.back()" class="btn btn-secondary">
+          ← Annuler
+        </a>
+      </div>
+    </form>
+  </div>
+
+  <!-- Info -->
+  <div class="info-box">
+    <p>
+      <strong>💡 Conseil:</strong> Assurez-vous que tous les champs obligatoires sont remplis.
+      Pour les images et vidéos, utilisez des URLs complètes (http:// ou https://).
+    </p>
+  </div>
+</div>
+
+<style>
+.ajouter-contenu-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+.ajouter-hero {
+  background: linear-gradient(135deg, #0A2463 0%, #247BA0 100%);
+  color: white;
+  padding: 50px 20px;
+  text-align: center;
+  border-radius: 10px;
+  margin-bottom: 40px;
+}
+
+.ajouter-hero h1 {
+  font-size: 2em;
+  margin: 0 0 10px 0;
+}
+
+.ajouter-hero p {
+  font-size: 1em;
+  margin: 0;
+  opacity: 0.9;
+}
+
+.messages {
+  margin: 20px 0;
+}
+
+.alert {
+  padding: 15px;
+  border-radius: 6px;
+  margin-bottom: 10px;
+  font-weight: bold;
+}
+
+.alert-success {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.alert-error {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.form-wrapper {
+  background: #f8f9fa;
+  padding: 30px;
+  border-radius: 8px;
+  margin-bottom: 30px;
+}
+
+.contenu-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: bold;
+  color: #0A2463;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 2px solid #ddd;
+  border-radius: 6px;
+  font-size: 1em;
+  font-family: inherit;
+  transition: border-color 0.3s;
+  box-sizing: border-box;
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: #247BA0;
+  box-shadow: 0 0 0 3px rgba(36, 123, 160, 0.1);
+}
+
+.error {
+  color: #E63946;
+  font-size: 0.9em;
+  margin-top: 5px;
+  display: block;
+}
+
+.help-text {
+  color: #666;
+  font-size: 0.85em;
+  font-style: italic;
+  margin-top: 5px;
+  display: block;
+}
+
+.form-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 30px;
+}
+
+.btn {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s;
+  text-decoration: none;
+  display: inline-block;
+  text-align: center;
+  font-size: 1em;
+}
+
+.btn-primary {
+  background-color: #0A2463;
+  color: white;
+  flex: 1;
+}
+
+.btn-primary:hover {
+  background-color: #247BA0;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(10, 36, 99, 0.3);
+}
+
+.btn-secondary {
+  background-color: #f0f0f0;
+  color: #0A2463;
+  flex: 1;
+}
+
+.btn-secondary:hover {
+  background-color: #e0e0e0;
+}
+
+.btn-large {
+  width: 100%;
+  padding: 14px;
+  font-size: 1.1em;
+}
+
+.info-box {
+  background: #E8F4F8;
+  border-left: 4px solid #247BA0;
+  padding: 15px;
+  border-radius: 6px;
+}
+
+.info-box p {
+  margin: 0;
+  color: #0A2463;
+}
+
+@media (max-width: 768px) {
+  .ajouter-contenu-container {
+    padding: 20px;
+  }
+
+  .ajouter-hero {
+    padding: 30px 20px;
+  }
+
+  .ajouter-hero h1 {
+    font-size: 1.6em;
+  }
+
+  .form-wrapper {
+    padding: 20px;
+  }
+
+  .form-actions {
+    flex-direction: column;
+  }
+}
+</style>
+{% endblock %}

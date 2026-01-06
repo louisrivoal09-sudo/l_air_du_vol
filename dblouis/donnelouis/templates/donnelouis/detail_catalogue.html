@@ -1,0 +1,156 @@
+{% extends 'donnelouis/base.html' %}
+{% load static %}
+
+{% block title %}{{ avion.nom }} - L'Air du Vol®{% endblock %}
+
+{% block content %}
+<!-- Barre de progression -->
+<div class="reading-progress">
+  <div class="reading-progress-bar" id="reading-progress-bar"></div>
+</div>
+
+<!-- Détail complet de l'avion -->
+<div class="card" style="max-width: 1200px; margin: 0 auto;" data-article-id="{{ avion.id }}">
+  <div class="card-content" style="padding: 3rem;">
+    <h1 class="preview-title">✈️ {{ avion.nom }}</h1>
+    <p class="preview-date">{{ avion.constructeur }} • {{ avion.type_avion }}</p>
+    
+    <!-- Boutons d'action -->
+    <div class="article-actions">
+      <button class="download-article-btn" onclick="downloadArticleAsPDF()">
+        📄 Télécharger en PDF
+      </button>
+      <button class="share-article-btn" onclick="shareArticle()">
+        📤 Partager
+      </button>
+    </div>
+    
+    <!-- Image de l'avion -->
+    {% if avion.image_principale %}
+    <div style="margin: 2rem 0; text-align: center;">
+      <img src="{{ avion.image_principale }}" alt="{{ avion.nom }}" style="max-width: 100%; height: auto; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
+    </div>
+    {% endif %}
+    
+    <!-- Caractéristiques principales -->
+    <div class="preview-resume" style="background: rgba(10, 36, 99, 0.05); border-left: 4px solid var(--primary); padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+      <h2 class="preview-theme">📋 Caractéristiques principales</h2>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-top: 1rem;">
+        <div>
+          <h3 class="preview-section-title">Constructeur</h3>
+          <p class="preview-text">{{ avion.constructeur }}</p>
+        </div>
+        <div>
+          <h3 class="preview-section-title">Type</h3>
+          <p class="preview-text">{{ avion.type_avion }}</p>
+        </div>
+        {% if avion.annee_premier_vol %}
+        <div>
+          <h3 class="preview-section-title">Année du premier vol</h3>
+          <p class="preview-text">{{ avion.annee_premier_vol }}</p>
+        </div>
+        {% endif %}
+        {% if avion.capacite %}
+        <div>
+          <h3 class="preview-section-title">Capacité</h3>
+          <p class="preview-text">{{ avion.capacite }} passagers</p>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Description -->
+    {% if avion.description %}
+    <div style="margin: 2rem 0;">
+      <h2 class="preview-theme">📖 Description</h2>
+      <p class="preview-text">{{ avion.description|linebreaks }}</p>
+    </div>
+    {% endif %}
+
+    <!-- Infos supplémentaires -->
+    <div style="background: rgba(10, 36, 99, 0.02); padding: 1.5rem; border-radius: 8px; margin: 2rem 0; border: 1px solid rgba(10, 36, 99, 0.1);">
+      <h3 class="preview-section-title">Informations supplémentaires</h3>
+      <p class="preview-text" style="color: var(--text-gray); margin-top: 1rem;">
+        <strong>Ajouté au catalogue le:</strong> {{ avion.date_creation|date:"d F Y à H:i" }}<br>
+        <strong>Dernière mise à jour:</strong> {{ avion.date_modification|date:"d F Y à H:i" }}
+      </p>
+    </div>
+
+    <!-- Bouton retour -->
+    <a href="{% url 'liste_catalogue' %}" class="btn" style="margin-top: 3rem; background: linear-gradient(135deg, #0A2463 0%, #1E3A8A 100%); display: inline-block; padding: 0.875rem 1.75rem; border-radius: 8px; color: white; text-decoration: none; font-weight: 600; transition: all 0.3s; cursor: pointer;">
+      ← Retour au catalogue
+    </a>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Barre de progression
+window.addEventListener('scroll', () => {
+  const progressBar = document.getElementById('reading-progress-bar');
+  const article = document.querySelector('.card-content');
+  const windowHeight = window.innerHeight;
+  const docHeight = article.offsetHeight;
+  const scrollTop = window.pageYOffset;
+  const progress = (scrollTop / (docHeight - windowHeight)) * 100;
+  progressBar.style.width = Math.min(Math.max(progress, 0), 100) + '%';
+});
+
+// Téléchargement PDF
+function downloadArticleAsPDF() {
+  const content = document.querySelector('.card-content').cloneNode(true);
+  content.querySelectorAll('.article-actions, .btn').forEach(el => el.remove());
+  
+  const printWindow = window.open('', '', 'width=900,height=700');
+  printWindow.document.write(`
+    <!doctype html>
+    <html>
+      <head>
+        <meta charset="utf-8"/>
+        <title>{{ avion.nom }}</title>
+        <style>
+          * { margin: 0; padding: 0; box-sizing: border-box; }
+          body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #1E293B; }
+          h1, h2, h3 { margin-top: 1.5rem; margin-bottom: 0.75rem; }
+          h1 { font-size: 2rem; }
+          h2 { font-size: 1.5rem; }
+          h3 { font-size: 1.125rem; }
+          p { margin-bottom: 1rem; }
+          img { max-width: 100%; height: auto; margin: 1rem 0; }
+          .specs-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1rem 0; }
+          .spec-item { padding: 1rem; background: #f0f0f0; border-radius: 8px; }
+        </style>
+      </head>
+      <body>
+        ${content.innerHTML}
+      </body>
+    </html>
+  `);
+  printWindow.document.close();
+  setTimeout(() => printWindow.print(), 250);
+}
+
+// Partage
+function shareArticle() {
+  const title = '{{ avion.nom }}';
+  const url = window.location.href;
+  
+  if (navigator.share) {
+    navigator.share({
+      title: title,
+      text: 'Découvrez cet avion dans le catalogue de L\'Air du Vol®',
+      url: url
+    }).catch(err => console.log('Erreur lors du partage:', err));
+  } else {
+    const shareText = `${title}\n${url}`;
+    navigator.clipboard.writeText(shareText).then(() => {
+      alert('Lien copié dans le presse-papiers !');
+    }).catch(() => {
+      alert('Lien: ' + url);
+    });
+  }
+}
+</script>
+{% endblock %}

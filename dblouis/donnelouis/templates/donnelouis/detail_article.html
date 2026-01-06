@@ -10,7 +10,7 @@
 </div>
 
 <!-- Article complet -->
-<div class="card" style="max-width: 1200px; margin: 0 auto;">
+<div class="card" style="max-width: 1200px; margin: 0 auto;" data-article-id="{{ article.id }}">
   <div class="card-content" style="padding: 3rem;">
     <h1 class="preview-title">{{ article.titre }}</h1>
     <p class="preview-date">Publié le {{ article.date_publication|date:"d F Y" }}</p>
@@ -97,6 +97,82 @@
       </div>
     </div>
     {% endif %}
+    
+    <!-- SECTION COMMENTAIRES -->
+    <div class="comments-section" style="margin-top: 4rem; padding-top: 3rem; border-top: 2px solid #E5E7EB;">
+      <h2 style="margin-bottom: 2rem;">💭 Commentaires</h2>
+      
+      <!-- Formulaire d'ajout de commentaire -->
+      <div class="add-comment-form" style="background: var(--bg-light); padding: 2rem; border-radius: var(--radius-xl); margin-bottom: 2rem;">
+        <h3 style="margin-bottom: 1rem;">Ajouter un commentaire</h3>
+        
+        <form id="comment-form" style="display: flex; flex-direction: column; gap: 1rem;">
+          {% csrf_token %}
+          
+          {% if not user.is_authenticated %}
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <input type="text" id="comment-auteur" placeholder="Votre nom (optionnel)" style="padding: 0.75rem; border: 1px solid #D1D5DB; border-radius: var(--radius); font-size: 0.95rem;">
+            <input type="email" id="comment-email" placeholder="Votre email (optionnel)" style="padding: 0.75rem; border: 1px solid #D1D5DB; border-radius: var(--radius); font-size: 0.95rem;">
+          </div>
+          {% endif %}
+          
+          <textarea 
+            id="comment-content" 
+            placeholder="Votre commentaire..." 
+            rows="4" 
+            required
+            style="padding: 0.75rem; border: 1px solid #D1D5DB; border-radius: var(--radius); font-size: 0.95rem; font-family: inherit;">
+          </textarea>
+          
+          <div style="display: flex; gap: 1rem; align-items: center;">
+            <button type="submit" class="btn" style="background: linear-gradient(135deg, #3B82F6 0%, #1E40AF 100%); flex-grow: 1;">
+              ✓ Publier le commentaire
+            </button>
+            <button type="button" class="btn" style="background: #EF4444;" onclick="toggleReportForm()" title="Signaler ce contenu">
+              🚩 Signaler
+            </button>
+          </div>
+        </form>
+      </div>
+      
+      <!-- Formulaire de signalement (caché par défaut) -->
+      <div id="report-form" style="background: #FEE2E2; padding: 2rem; border-radius: var(--radius-xl); margin-bottom: 2rem; display: none; border: 2px solid #FCA5A5;">
+        <h3 style="margin-bottom: 1rem; color: #991B1B;">🚩 Signaler cet article</h3>
+        <form id="article-report-form" style="display: flex; flex-direction: column; gap: 1rem;">
+          {% csrf_token %}
+          
+          <select id="report-reason" required style="padding: 0.75rem; border: 1px solid #D1D5DB; border-radius: var(--radius);">
+            <option value="">-- Sélectionner une raison --</option>
+            <option value="spam">Spam</option>
+            <option value="offensant">Contenu offensant</option>
+            <option value="inexact">Information inexacte</option>
+            <option value="publicite">Publicité non autorisée</option>
+            <option value="autre">Autre</option>
+          </select>
+          
+          <textarea 
+            id="report-description" 
+            placeholder="Détails du signalement (optionnel)" 
+            rows="3"
+            style="padding: 0.75rem; border: 1px solid #D1D5DB; border-radius: var(--radius); font-size: 0.95rem; font-family: inherit;">
+          </textarea>
+          
+          <div style="display: flex; gap: 1rem;">
+            <button type="submit" class="btn" style="background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%); flex-grow: 1;">
+              Envoyer le signalement
+            </button>
+            <button type="button" class="btn" style="background: #9CA3AF;" onclick="toggleReportForm()">
+              Annuler
+            </button>
+          </div>
+        </form>
+      </div>
+      
+      <!-- Liste des commentaires -->
+      <div id="comments-list" style="display: flex; flex-direction: column; gap: 1.5rem;">
+        <p style="text-align: center; color: var(--text-gray);">Chargement des commentaires...</p>
+      </div>
+    </div>
     
     <a href="{% url 'liste_articles' %}" class="btn" style="margin-top: 3rem; background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);">
       ← Retour aux articles
@@ -249,5 +325,120 @@ document.addEventListener('keydown', (e) => {
   if (e.key === 'ArrowLeft' && currentIndex > 0) showImage(currentIndex - 1);
   if (e.key === 'ArrowRight' && currentIndex < images.length - 1) showImage(currentIndex + 1);
 });
+
+// ===== COMMENTAIRES ET SIGNALEMENTS =====
+
+function toggleReportForm() {
+  const reportForm = document.getElementById('report-form');
+  reportForm.style.display = reportForm.style.display === 'none' ? 'block' : 'none';
+  document.getElementById('comment-content').value = '';
+}
+
+// Charger les commentaires au chargement de la page
+async function loadComments() {
+  const articleId = document.querySelector('[data-article-id]').dataset.articleId;
+  try {
+    const response = await fetch(`/api/article/${articleId}/comments/`);
+    const data = await response.json();
+    
+    if (data.success && data.comments.length > 0) {
+      const commentsList = document.getElementById('comments-list');
+      commentsList.innerHTML = data.comments.map(comment => `
+        <div style="background: var(--bg-light); padding: 1.5rem; border-radius: var(--radius-lg); border-left: 4px solid var(--primary);">
+          <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem;">
+            <strong style="font-size: 1.05rem;">${comment.auteur}</strong>
+            <span style="font-size: 0.85rem; color: var(--text-gray);">${comment.date}</span>
+          </div>
+          <p style="color: var(--text-dark); line-height: 1.6;">${comment.contenu}</p>
+        </div>
+      `).join('');
+    } else {
+      document.getElementById('comments-list').innerHTML = '<p style="text-align: center; color: var(--text-gray);">Aucun commentaire pour le moment. Soyez le premier à commenter!</p>';
+    }
+  } catch (error) {
+    console.error('Erreur chargement commentaires:', error);
+    document.getElementById('comments-list').innerHTML = '<p style="color: #EF4444;">Erreur lors du chargement des commentaires</p>';
+  }
+}
+
+// Ajouter un commentaire
+document.getElementById('comment-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  
+  const articleId = document.querySelector('[data-article-id]').dataset.articleId;
+  const content = document.getElementById('comment-content').value;
+  const auteurNom = document.getElementById('comment-auteur')?.value || 'Anonyme';
+  const auteurEmail = document.getElementById('comment-email')?.value || '';
+  
+  try {
+    const response = await fetch(`/api/article/${articleId}/comment/add/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+      },
+      body: JSON.stringify({
+        contenu: content,
+        auteur_nom: auteurNom,
+        auteur_email: auteurEmail
+      })
+    });
+    
+    const data = await response.json();
+    
+    if (data.success) {
+      document.getElementById('comment-form').reset();
+      loadComments();
+      alert('✓ ' + data.message);
+    } else {
+      alert('✗ Erreur: ' + data.error);
+    }
+  } catch (error) {
+    console.error('Erreur ajout commentaire:', error);
+    alert('✗ Erreur lors de l\'ajout du commentaire');
+  }
+});
+
+// Signaler un article
+document.getElementById('article-report-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  
+  const articleId = document.querySelector('[data-article-id]').dataset.articleId;
+  const reason = document.getElementById('report-reason').value;
+  const description = document.getElementById('report-description').value;
+  
+  try {
+    const response = await fetch(`/api/article/${articleId}/report/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+      },
+      body: JSON.stringify({
+        raison: reason,
+        description: description
+      })
+    });
+    
+    const data = await response.json();
+    
+    if (data.success) {
+      toggleReportForm();
+      alert('✓ ' + data.message);
+    } else {
+      alert('✗ Erreur: ' + data.error);
+    }
+  } catch (error) {
+    console.error('Erreur signalement:', error);
+    alert('✗ Erreur lors du signalement');
+  }
+});
+
+// Charger les commentaires au chargement
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', loadComments);
+} else {
+  loadComments();
+}
 </script>
 {% endblock %}

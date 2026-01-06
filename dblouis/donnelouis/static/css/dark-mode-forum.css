@@ -1,0 +1,268 @@
+/* ========== MODE SOMBRE - FORUM & CONTENU DYNAMIQUE ========== */
+
+/* --------- FORUM POSTS --------- */
+body.dark .forum-post {
+  background: #1E293B;
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+body.dark .forum-post:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  border-color: rgba(59, 130, 246, 0.2);
+}
+
+body.dark .forum-post-header {
+  border-bottom-color: rgba(255, 255, 255, 0.1);
+  padding-bottom: 1rem;
+}
+
+body.dark .forum-author {
+  color: #60A5FA;
+  font-weight: 600;
+}
+
+body.dark .forum-post-meta {
+  color: #94A3B8;
+  font-size: 0.875rem;
+}
+
+body.dark .forum-post-content {
+  color: #CBD5E1;
+}
+
+body.dark .forum-post-content h2,
+body.dark .forum-post-content h3,
+body.dark .forum-post-content h4 {
+  color: #E2E8F0;
+}
+
+body.dark .forum-post-actions {
+  border-top-color: rgba(255, 255, 255, 0.05);
+  padding-top: 1rem;
+  margin-top: 1rem;
+}
+
+body.dark .forum-action-btn {
+  color: #94A3B8;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: transparent;
+  transition: all 0.3s ease;
+}
+
+body.dark .forum-action-btn:hover {
+  color: #60A5FA;
+  border-color: rgba(59, 130, 246, 0.3);
+  background: rgba(59, 130, 246, 0.05);
+}
+
+/* --------- FORMULAIRES DE FORUM --------- */
+body.dark .forum-form {
+  background: #1E293B;
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+body.dark .forum-form-title input,
+body.dark .forum-form-content textarea {
+  background: #0F172A;
+  color: #E2E8F0;
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+body.dark .forum-form-title input::placeholder,
+body.dark .forum-form-content textarea::placeholder {
+  color: #64748B;
+}
+
+body.dark .forum-form-title input:focus,
+body.dark .forum-form-content textarea:focus {
+  border-color: #3B82F6;
+  background: #1E293B;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+body.dark .forum-form-actions {
+  border-top-color: rgba(255, 255, 255, 0.1);
+}
+
+/* --------- REPLIES THREAD --------- */
+body.dark .reply-thread {
+  border-left-color: rgba(59, 130, 246, 0.3);
+  margin-left: 1rem;
+  padding-left: 1rem;
+}
+
+body.dark .reply-item {
+  background: rgba(15, 23, 42, 0.5);
+  border-color: rgba(255, 255, 255, 0.05);
+  margin-bottom: 1rem;
+}
+
+/* --------- BREADCRUMB --------- */
+body.dark .breadcrumb {
+  color: #94A3B8;
+}
+
+body.dark .breadcrumb a {
+  color: #60A5FA;
+}
+
+body.dark .breadcrumb a:hover {
+  color: #93C5FD;
+  text-decoration: underline;
+}
+
+body.dark .breadcrumb span {
+  color: #64748B;
+}
+
+/* --------- PAGINATION --------- */
+body.dark .pagination {
+  gap: 0.5rem;
+}
+
+body.dark .pagination a,
+body.dark .pagination button {
+  background: #1E293B;
+  color: #E2E8F0;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+body.dark .pagination a:hover,
+body.dark .pagination button:hover {
+  background: rgba(59, 130, 246, 0.1);
+  border-color: #3B82F6;
+  color: #60A5FA;
+}
+
+body.dark .pagination .active {
+  background: #3B82F6;
+  border-color: #3B82F6;
+  color: white;
+}
+
+body.dark .pagination .disabled {
+  color: #64748B;
+  cursor: not-allowed;
+  background: transparent;
+  border-color: rgba(255, 255, 255, 0.05);
+}
+
+/* --------- VOTES & LIKE --------- */
+body.dark .vote-btn {
+  color: #94A3B8;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+body.dark .vote-btn:hover {
+  color: #60A5FA;
+  border-color: rgba(59, 130, 246, 0.3);
+  background: rgba(59, 130, 246, 0.05);
+}
+
+body.dark .vote-btn.voted {
+  color: #60A5FA;
+  background: rgba(59, 130, 246, 0.1);
+  border-color: rgba(59, 130, 246, 0.3);
+}
+
+body.dark .vote-count {
+  color: #CBD5E1;
+}
+
+/* --------- UTILISATEUR PROFIL (SMALL) --------- */
+body.dark .user-card-small {
+  background: rgba(15, 23, 42, 0.5);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+body.dark .user-card-small .user-name {
+  color: #E2E8F0;
+}
+
+body.dark .user-card-small .user-badge {
+  background: rgba(59, 130, 246, 0.15);
+  color: #60A5FA;
+}
+
+body.dark .user-card-small .user-role {
+  color: #94A3B8;
+}
+
+/* --------- QUOTE/BLOCKQUOTE --------- */
+body.dark blockquote {
+  background: rgba(59, 130, 246, 0.1);
+  border-left-color: #3B82F6;
+  color: #CBD5E1;
+}
+
+body.dark .quote-author {
+  color: #94A3B8;
+  font-size: 0.875rem;
+}
+
+/* --------- CODE SNIPPETS --------- */
+body.dark code {
+  background: #0F172A;
+  color: #60A5FA;
+  border-color: rgba(59, 130, 246, 0.2);
+}
+
+body.dark pre {
+  background: #0F172A;
+  color: #E2E8F0;
+  border-color: rgba(255, 255, 255, 0.1);
+  overflow-x: auto;
+}
+
+body.dark pre code {
+  background: transparent;
+  border: none;
+  color: #E2E8F0;
+}
+
+/* --------- EDIT & DELETE ICONS --------- */
+body.dark .edit-btn,
+body.dark .delete-btn {
+  color: #94A3B8;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+body.dark .edit-btn:hover {
+  color: #60A5FA;
+}
+
+body.dark .delete-btn:hover {
+  color: #F87171;
+}
+
+/* --------- LOCK/SOLVED BADGE --------- */
+body.dark .badge-locked {
+  background: rgba(239, 68, 68, 0.2);
+  color: #F87171;
+}
+
+body.dark .badge-solved {
+  background: rgba(52, 211, 153, 0.2);
+  color: #2DD4BF;
+}
+
+body.dark .badge-pinned {
+  background: rgba(245, 158, 11, 0.2);
+  color: #FBBF24;
+}
+
+/* --------- TRANSITIONS --------- */
+body.dark .forum-post,
+body.dark .forum-action-btn,
+body.dark .vote-btn,
+body.dark .edit-btn,
+body.dark .delete-btn {
+  transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}

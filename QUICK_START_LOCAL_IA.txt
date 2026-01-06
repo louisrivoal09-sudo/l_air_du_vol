@@ -1,0 +1,138 @@
+# ⚡ Quick Start - IA Locale
+
+## Installation - 0 étapes
+
+L'IA est **déjà installée et fonctionnelle**. Aucune configuration requise.
+
+## Démarrage du serveur
+
+```bash
+cd c:\Users\louis\OneDrive\Documents\COLLEGE\AUTRE\ENGAGEMENT\CLUBS\CLUB WEB\Django\louis\dblouis
+python manage.py runserver
+```
+
+Accédez à: `http://127.0.0.1:8000/`
+
+## Test immédiat
+
+1. Allez sur la page d'accueil
+2. Cliquez sur le bouton **❔** en bas-right
+3. Posez une question:
+   - "Articles aviation"
+   - "Avez-vous des vidéos?"
+   - "Ressources pilote"
+   - "Comment devenir pilote?"
+
+## Fonctionnalités activées
+
+✅ Chat IA en modale  
+✅ Recherche en temps réel (<100ms)  
+✅ Liens cliquables vers le contenu  
+✅ Protection CSRF  
+✅ Messages contextuels  
+
+## Fichiers clés
+
+| Fichier | Rôle |
+|---------|------|
+| `donnelouis/views.py` | Logique backend (chat_with_ai) |
+| `donnelouis/static/js/ai-chat.js` | Interface utilisateur |
+| `donnelouis/urls.py` | Route `/api/chat/` |
+| `donnelouis/templates/donnelouis/base.html` | Modale HTML |
+| `donnelouis/static/css/style.css` | Styles |
+
+## Personnalisation rapide
+
+### Changer le message de bienvenue
+
+Fichier: `donnelouis/static/js/ai-chat.js` (ligne 148)
+
+```javascript
+addMsg('Bienvenue! 👋 Je suis votre assistant personnel. Posez-moi une question sur L\'Air du Vol! ✈️', 'ai');
+```
+
+### Changer le temps de limite (actuellement 2 caractères)
+
+Fichier: `donnelouis/views.py` (ligne 385)
+
+```python
+if not query or len(query) < 2:  # Changer le 2
+```
+
+### Ajouter un type de recherche
+
+Fichier: `donnelouis/views.py` (ligne 410)
+
+```python
+# Recherche dans un nouveau modèle
+nouveaux = NouveauModele.objects.filter(
+    Q(titre__icontains=query)
+)[:2]
+
+if nouveaux:
+    for item in nouveaux:
+        results.append({
+            'type': 'nouveau',
+            'titre': item.titre,
+            'slug': item.slug,
+            'description': item.description[:100]
+        })
+```
+
+## Schéma de requête API
+
+**POST** `/api/chat/`
+
+Request:
+```json
+{
+  "message": "Articles aviation"
+}
+```
+
+Response:
+```json
+{
+  "success": true,
+  "message": "J'ai trouvé 2 résultat(s) pour 'articles aviation'",
+  "results": [
+    {
+      "type": "article",
+      "titre": "Les bases du vol",
+      "slug": "les-bases-du-vol",
+      "resume": "Découvrez les principes fondamentaux..."
+    },
+    {
+      "type": "article",
+      "titre": "L'aviation commerciale",
+      "slug": "aviation-commerciale",
+      "resume": "Plongée dans le monde du transport aérien..."
+    }
+  ]
+}
+```
+
+## Performance
+
+- Temps réponse: **<100ms**
+- Aucune dépendance externe
+- Zéro appel API
+- Utilise SQLite en local
+
+## Dépannage
+
+### "Le serveur ne répond pas"
+→ Vérifier que le serveur Django est lancé  
+→ Vérifier la console (F12)
+
+### "Aucun résultat"
+→ Ajouter plus d'articles au site  
+→ Les résultats s'indexent automatiquement
+
+### CSRF Error
+→ Vérifier que les cookies sont activés  
+→ Recharger la page
+
+---
+
+**Documentation complète**: Voir `IA_LOCAL_DOCUMENTATION.md`

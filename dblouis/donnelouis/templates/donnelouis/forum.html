@@ -1,0 +1,132 @@
+{% extends 'donnelouis/base.html' %}
+{% load forum_filters %}
+
+{% block title %}Forum - L'Air du Vol{% endblock %}
+
+{% block content %}
+<div class="forum-container">
+    <!-- En-tête du forum -->
+    <div class="forum-header">
+        <div>
+            <h1>
+                <i class="fas fa-comments"></i> Forum de Discussion
+            </h1>
+            <p>Partagez vos questions et vos expériences avec la communauté</p>
+        </div>
+        <div>
+            <a href="{% url 'creer_sujet_forum' %}" class="btn-create-topic">
+                <i class="fas fa-plus"></i> Créer un sujet
+            </a>
+        </div>
+    </div>
+
+    <!-- Filtres de catégorie -->
+    <div class="forum-filters">
+        <a href="{% url 'forum' %}" class="filter-btn {% if not categorie_active %}active{% endif %}">
+            <i class="fas fa-bars"></i> Tous les sujets
+        </a>
+        {% for code, label in categories %}
+            <a href="{% url 'forum' %}?categorie={{ code }}" 
+               class="filter-btn {% if categorie_active == code %}active{% endif %}">
+                <i class="fas fa-tag"></i> {{ label }}
+            </a>
+        {% endfor %}
+    </div>
+
+    <!-- Statistiques -->
+    <div class="forum-stats">
+        <div class="forum-stats-item">
+            <i class="fas fa-comments"></i>
+            <div>
+                <strong id="total-sujets">{{ sujets|length }}</strong>
+                <span>sujet{{ sujets|length|pluralize }}</span>
+            </div>
+        </div>
+        <div class="forum-stats-item">
+            <i class="fas fa-reply"></i>
+            <div>
+                <strong id="total-reponses">0</strong>
+                <span>réponse{{ sujets|length|pluralize }}</span>
+            </div>
+        </div>
+        <div class="forum-stats-item">
+            <i class="fas fa-users"></i>
+            <div>
+                <strong id="total-users">0</strong>
+                <span>participan{{ sujets|length|pluralize }}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Liste des sujets -->
+    {% if sujets %}
+        <div class="forum-topics-list">
+            {% for sujet in sujets %}
+                <div class="forum-topic-card">
+                    <a href="{% url 'detail_sujet_forum' sujet.slug %}" style="text-decoration: none; color: inherit;">
+                        <div class="forum-topic-header">
+                            <h3 class="forum-topic-title">
+                                <i class="fas fa-comments-o"></i> {{ sujet.titre }}
+                            </h3>
+                            <small class="forum-topic-date">
+                                {{ sujet.date_creation|date:"d M Y" }}
+                            </small>
+                        </div>
+
+                        <div class="forum-topic-meta">
+                            <span class="forum-topic-author">
+                                Par <strong>{{ sujet.get_auteur_display }}</strong>
+                            </span>
+                            <span class="forum-category-badge">
+                                <i class="fas fa-folder"></i> {{ sujet.categorie|title }}
+                            </span>
+                        </div>
+
+                        {% if sujet.tags %}
+                            <div class="forum-tags">
+                                {% for tag in sujet.tags|split:"," %}
+                                    <span class="forum-tag">
+                                        <i class="fas fa-tag"></i> {{ tag|striptags|title|truncatewords:2 }}
+                                    </span>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+
+                        <div class="forum-topic-stats">
+                            <div class="forum-topic-stat">
+                                <i class="fas fa-eye"></i>
+                                <strong>{{ sujet.vues }}</strong>
+                                <span>vue{{ sujet.vues|pluralize }}</span>
+                            </div>
+                            <div class="forum-topic-stat">
+                                <i class="fas fa-reply"></i>
+                                <strong>{{ sujet.get_nombre_reponses }}</strong>
+                                <span>réponse{{ sujet.get_nombre_reponses|pluralize }}</span>
+                            </div>
+                            <div class="forum-topic-stat">
+                                <i class="fas fa-fire"></i>
+                                <strong>{{ sujet.vues|add:sujet.get_nombre_reponses }}</strong>
+                                <span>activité</span>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="forum-empty-message">
+            <i class="fas fa-inbox"></i>
+            <p><strong>Aucun sujet trouvé dans cette catégorie.</strong></p>
+            {% if user.is_authenticated %}
+                <a href="{% url 'creer_sujet_forum' %}" style="color: inherit; text-decoration: underline;">
+                    Créer le premier sujet
+                </a>
+            {% else %}
+                <a href="{% url 'login' %}" style="color: inherit; text-decoration: underline;">
+                    Connectez-vous
+                </a> pour créer un sujet
+            {% endif %}
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

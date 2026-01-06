@@ -1,0 +1,105 @@
+{% extends 'donnelouis/base.html' %}
+
+{% block title %}Éditer un sujet - Forum L'Air du Vol{% endblock %}
+
+{% block content %}
+<div class="forum-reply-form" style="max-width: 700px; margin: 0 auto;">
+    <h2 style="margin-bottom: 1.5rem;">
+        <i class="fas fa-edit"></i> Éditer le sujet
+    </h2>
+
+    <form method="POST">
+        {% csrf_token %}
+        
+        <!-- Erreurs de formulaire -->
+        {% if form.non_field_errors %}
+            <div style="background: #F8D7DA; border-left: 4px solid #DC3545; padding: 1rem; border-radius: var(--radius); margin-bottom: 1.5rem;">
+                {% for error in form.non_field_errors %}
+                    <p style="color: #721C24; margin: 0;">{{ error }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <!-- Titre -->
+        <div class="form-group">
+            <label for="{{ form.titre.id_for_label }}">
+                <i class="fas fa-heading"></i> Titre du sujet
+            </label>
+            {{ form.titre }}
+            {% if form.titre.errors %}
+                <div style="color: #DC3545; font-size: 0.9rem; margin-top: 0.5rem;">
+                    {% for error in form.titre.errors %}
+                        <p style="margin: 0;">{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Catégorie -->
+        <div class="form-group">
+            <label for="{{ form.categorie.id_for_label }}">
+                <i class="fas fa-folder"></i> Catégorie
+            </label>
+            {{ form.categorie }}
+            {% if form.categorie.errors %}
+                <div style="color: #DC3545; font-size: 0.9rem; margin-top: 0.5rem;">
+                    {% for error in form.categorie.errors %}
+                        <p style="margin: 0;">{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Contenu -->
+        <div class="form-group">
+            <label for="{{ form.contenu.id_for_label }}">
+                <i class="fas fa-file-alt"></i> Contenu
+            </label>
+            {{ form.contenu }}
+            {% if form.contenu.errors %}
+                <div style="color: #DC3545; font-size: 0.9rem; margin-top: 0.5rem;">
+                    {% for error in form.contenu.errors %}
+                        <p style="margin: 0;">{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Tags -->
+        <div class="form-group">
+            <label for="{{ form.tags.id_for_label }}">
+                <i class="fas fa-hashtag"></i> Tags (optionnel)
+            </label>
+            {{ form.tags }}
+            {% if form.tags.errors %}
+                <div style="color: #DC3545; font-size: 0.9rem; margin-top: 0.5rem;">
+                    {% for error in form.tags.errors %}
+                        <p style="margin: 0;">{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Boutons -->
+        <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+            <button type="submit" class="btn-submit">
+                <i class="fas fa-paper-plane"></i> Mettre à jour
+            </button>
+            <a href="{% url 'detail_sujet_forum' sujet.slug %}" class="btn-create-topic" style="background: var(--secondary); text-decoration: none;">
+                <i class="fas fa-times"></i> Annuler
+            </a>
+        </div>
+    </form>
+</div>
+
+<!-- Informations -->
+<div style="background: linear-gradient(135deg, rgba(10, 36, 99, 0.05) 0%, rgba(30, 58, 138, 0.05) 100%); border-left: 4px solid var(--primary); padding: 1.5rem; border-radius: var(--radius-lg); margin-top: 2rem; max-width: 700px; margin-left: auto; margin-right: auto;">
+    <p style="margin: 0; color: var(--text-gray);">
+        <i class="fas fa-info-circle" style="color: var(--primary);"></i>
+        <strong style="color: var(--text-dark);">Créé le</strong> {{ sujet.date_creation|date:"d/m/Y à H:i" }}
+        <br>
+        <i class="fas fa-pencil" style="color: var(--primary); margin-top: 0.5rem; display: inline-block;"></i>
+        <strong style="color: var(--text-dark);">Modifié le</strong> {{ sujet.date_modification|date:"d/m/Y à H:i" }}
+    </p>
+</div>
+{% endblock %}

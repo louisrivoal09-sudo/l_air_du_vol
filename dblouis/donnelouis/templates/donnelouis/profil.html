@@ -1,0 +1,858 @@
+{% extends 'donnelouis/base.html' %}
+{% load static %}
+
+{% block title %}Mon Profil - L'Air du Vol®{% endblock %}
+
+{% block content %}
+<div class="profile-container">
+  <!-- En-tête du profil -->
+  <div class="profile-header">
+    <div class="profile-cover"></div>
+    <div class="profile-info">
+      <div class="profile-avatar">
+        <img id="profile-avatar-img" src="https://via.placeholder.com/120?text=📱" alt="Avatar" class="avatar-img">
+        <button class="avatar-edit-btn" title="Changer l'avatar">📸</button>
+      </div>
+      <div class="profile-details">
+        <h1 id="profile-username">{{ user.username }}</h1>
+        <p id="profile-bio" class="profile-bio">{{ profile.bio|default:"Pas de bio" }}</p>
+        <p class="profile-email">{{ user.email }}</p>
+        <p class="profile-joined">Inscrit depuis {{ user.date_joined|date:"d/m/Y" }}</p>
+      </div>
+      <button id="edit-profile-btn" class="btn-edit-profile">✏️ Éditer le profil</button>
+    </div>
+  </div>
+
+  <!-- Statistiques -->
+  <div class="profile-stats">
+    <div class="stat-card">
+      <div class="stat-number" id="stat-articles">0</div>
+      <div class="stat-label">Articles lus</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number" id="stat-favorites">0</div>
+      <div class="stat-label">Favoris</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number" id="stat-comments">0</div>
+      <div class="stat-label">Commentaires</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number" id="stat-posts">0</div>
+      <div class="stat-label">Posts forum</div>
+    </div>
+  </div>
+
+  <!-- Onglets -->
+  <div class="profile-tabs">
+    <button class="profile-tab-btn active" data-tab="favorites">⭐ Favoris</button>
+    <button class="profile-tab-btn" data-tab="comments">💬 Commentaires</button>
+    <button class="profile-tab-btn" data-tab="settings">⚙️ Paramètres</button>
+  </div>
+
+  <!-- Contenu des onglets -->
+  <div class="profile-content">
+    <!-- Favoris -->
+    <div class="profile-tab-content active" data-tab="favorites">
+      <h2>Mes articles favoris</h2>
+      <div id="favorites-list" class="favorites-grid">
+        <p class="empty-state">Vous n'avez pas encore de favoris</p>
+      </div>
+    </div>
+
+    <!-- Commentaires -->
+    <div class="profile-tab-content" data-tab="comments">
+      <h2>Mes commentaires</h2>
+      <div id="comments-list" class="comments-list">
+        <p class="empty-state">Vous n'avez pas encore de commentaires</p>
+      </div>
+    </div>
+
+    <!-- Paramètres -->
+    <div class="profile-tab-content" data-tab="settings">
+      <h2>Paramètres du compte</h2>
+      <div class="settings-section">
+        <h3>Profil</h3>
+        <div class="form-group">
+          <label for="bio-input">Biographie</label>
+          <textarea id="bio-input" class="form-control" placeholder="Parlez-nous de vous..." rows="4"></textarea>
+          <small>Max 500 caractères</small>
+        </div>
+        
+        <div class="form-group">
+          <label for="avatar-input">Lien de l'avatar</label>
+          <input type="url" id="avatar-input" class="form-control" placeholder="https://...">
+        </div>
+        
+        <button id="save-profile-btn" class="btn-primary">💾 Enregistrer</button>
+      </div>
+
+      <div class="settings-section">
+        <h3>Sécurité</h3>
+        <a href="{% url 'logout' %}" class="btn-secondary">🚪 Se déconnecter</a>
+      </div>
+
+      <div class="settings-section danger-zone">
+        <h3>Zone dangereuse</h3>
+        <p>Une fois supprimé, votre compte ne peut pas être récupéré.</p>
+        <button id="delete-account-btn" class="btn-danger">🗑️ Supprimer le compte</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modale d'édition du profil -->
+<div id="edit-profile-modal" class="modal hidden">
+  <div class="modal-overlay"></div>
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Éditer mon profil</h2>
+      <button class="modal-close">✕</button>
+    </div>
+    <div class="modal-body">
+      <form id="edit-profile-form">
+        <div class="form-group">
+          <label for="bio">Biographie</label>
+          <textarea id="bio" name="bio" class="form-control" maxlength="500" rows="4"></textarea>
+          <small id="bio-count">0/500</small>
+        </div>
+        
+        <div class="form-group">
+          <label for="avatar_url">URL de l'avatar</label>
+          <input type="url" id="avatar_url" name="avatar_url" class="form-control" placeholder="https://example.com/avatar.jpg">
+        </div>
+        
+        <div class="modal-footer">
+          <button type="button" class="btn-secondary modal-close">Annuler</button>
+          <button type="submit" class="btn-primary">Enregistrer</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<style>
+.profile-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.profile-header {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 30px;
+  overflow: hidden;
+}
+
+body.dark .profile-header {
+  background: #1e293b;
+}
+
+.profile-cover {
+  height: 200px;
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+}
+
+.profile-info {
+  display: flex;
+  gap: 30px;
+  padding: 30px;
+  align-items: flex-start;
+}
+
+.profile-avatar {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.avatar-img {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  border: 4px solid white;
+  object-fit: cover;
+  background: #e5e7eb;
+}
+
+.avatar-edit-btn {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #3b82f6;
+  color: white;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.avatar-edit-btn:hover {
+  background: #2563eb;
+  transform: scale(1.1);
+}
+
+.profile-details {
+  flex: 1;
+}
+
+.profile-details h1 {
+  margin: 0 0 8px 0;
+  font-size: 28px;
+  color: #1f2937;
+}
+
+body.dark .profile-details h1 {
+  color: #e2e8f0;
+}
+
+.profile-bio {
+  font-size: 16px;
+  color: #6b7280;
+  margin: 8px 0;
+}
+
+body.dark .profile-bio {
+  color: #cbd5e1;
+}
+
+.profile-email {
+  color: #9ca3af;
+  font-size: 14px;
+  margin: 4px 0;
+}
+
+body.dark .profile-email {
+  color: #94a3b8;
+}
+
+.profile-joined {
+  color: #9ca3af;
+  font-size: 12px;
+  margin-top: 8px;
+}
+
+.btn-edit-profile {
+  padding: 10px 16px;
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 12px;
+}
+
+.btn-edit-profile:hover {
+  background: #2563eb;
+  transform: translateY(-2px);
+}
+
+/* Statistiques */
+.profile-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 16px;
+  margin-bottom: 30px;
+}
+
+.stat-card {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+body.dark .stat-card {
+  background: #1e293b;
+}
+
+.stat-number {
+  font-size: 32px;
+  font-weight: 700;
+  color: #3b82f6;
+  margin-bottom: 8px;
+}
+
+.stat-label {
+  color: #6b7280;
+  font-size: 14px;
+}
+
+body.dark .stat-label {
+  color: #cbd5e1;
+}
+
+/* Onglets */
+.profile-tabs {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+body.dark .profile-tabs {
+  border-bottom-color: #334155;
+}
+
+.profile-tab-btn {
+  padding: 12px 16px;
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  color: #6b7280;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 14px;
+}
+
+body.dark .profile-tab-btn {
+  color: #94a3b8;
+}
+
+.profile-tab-btn.active {
+  color: #3b82f6;
+  border-bottom-color: #3b82f6;
+}
+
+body.dark .profile-tab-btn.active {
+  color: #60a5fa;
+  border-bottom-color: #60a5fa;
+}
+
+.profile-tab-btn:hover {
+  color: #1f2937;
+}
+
+body.dark .profile-tab-btn:hover {
+  color: #e2e8f0;
+}
+
+/* Contenu */
+.profile-content {
+  background: white;
+  border-radius: 8px;
+  padding: 30px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+body.dark .profile-content {
+  background: #1e293b;
+}
+
+.profile-tab-content {
+  display: none;
+}
+
+.profile-tab-content.active {
+  display: block;
+}
+
+.profile-tab-content h2 {
+  color: #1f2937;
+  margin-top: 0;
+}
+
+body.dark .profile-tab-content h2 {
+  color: #e2e8f0;
+}
+
+.empty-state {
+  text-align: center;
+  color: #9ca3af;
+  padding: 40px 20px;
+  font-style: italic;
+}
+
+/* Grid des favoris */
+.favorites-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.favorite-card {
+  background: #f9fafb;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+
+body.dark .favorite-card {
+  background: #334155;
+}
+
+.favorite-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+.favorite-card img {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+}
+
+.favorite-card-content {
+  padding: 12px;
+}
+
+.favorite-card-title {
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0 0 8px 0;
+  font-size: 14px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+body.dark .favorite-card-title {
+  color: #e2e8f0;
+}
+
+.favorite-card-date {
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+/* Commentaires */
+.comments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.comment-item {
+  background: #f9fafb;
+  padding: 16px;
+  border-radius: 8px;
+  border-left: 4px solid #3b82f6;
+}
+
+body.dark .comment-item {
+  background: #334155;
+  border-left-color: #60a5fa;
+}
+
+.comment-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.comment-article {
+  font-weight: 600;
+  color: #1f2937;
+}
+
+body.dark .comment-article {
+  color: #e2e8f0;
+}
+
+.comment-date {
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+.comment-text {
+  color: #4b5563;
+  line-height: 1.6;
+}
+
+body.dark .comment-text {
+  color: #cbd5e1;
+}
+
+/* Formulaires */
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #1f2937;
+}
+
+body.dark .form-group label {
+  color: #e2e8f0;
+}
+
+.form-control {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: inherit;
+  background: white;
+  color: #1f2937;
+}
+
+body.dark .form-control {
+  background: #334155;
+  border-color: #475569;
+  color: #e2e8f0;
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.form-group small {
+  display: block;
+  margin-top: 4px;
+  color: #9ca3af;
+  font-size: 12px;
+}
+
+/* Boutons */
+.btn-primary {
+  padding: 10px 20px;
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  transform: translateY(-2px);
+}
+
+.btn-secondary {
+  padding: 10px 20px;
+  background: #e5e7eb;
+  color: #1f2937;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-decoration: none;
+  display: inline-block;
+}
+
+body.dark .btn-secondary {
+  background: #334155;
+  color: #e2e8f0;
+}
+
+.btn-secondary:hover {
+  background: #d1d5db;
+}
+
+body.dark .btn-secondary:hover {
+  background: #475569;
+}
+
+.btn-danger {
+  padding: 10px 20px;
+  background: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-danger:hover {
+  background: #dc2626;
+}
+
+/* Sections */
+.settings-section {
+  margin-bottom: 30px;
+  padding-bottom: 30px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+body.dark .settings-section {
+  border-bottom-color: #334155;
+}
+
+.settings-section:last-child {
+  border-bottom: none;
+}
+
+.settings-section h3 {
+  margin-top: 0;
+  color: #1f2937;
+}
+
+body.dark .settings-section h3 {
+  color: #e2e8f0;
+}
+
+.danger-zone {
+  background: #fee2e2;
+  padding: 16px;
+  border-radius: 6px;
+  border-left: 4px solid #dc2626;
+}
+
+body.dark .danger-zone {
+  background: rgba(220, 38, 38, 0.1);
+}
+
+.danger-zone p {
+  color: #991b1b;
+  margin: 0 0 12px 0;
+}
+
+body.dark .danger-zone p {
+  color: #fca5a5;
+}
+
+/* Modal */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal.hidden {
+  display: none;
+}
+
+.modal-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  cursor: pointer;
+}
+
+.modal-content {
+  position: relative;
+  background: white;
+  border-radius: 12px;
+  max-width: 500px;
+  width: 90%;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  z-index: 1;
+}
+
+body.dark .modal-content {
+  background: #1e293b;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+body.dark .modal-header {
+  border-bottom-color: #334155;
+}
+
+.modal-header h2 {
+  margin: 0;
+  color: #1f2937;
+}
+
+body.dark .modal-header h2 {
+  color: #e2e8f0;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #6b7280;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.modal-close:hover {
+  color: #1f2937;
+  background: #f3f4f6;
+  border-radius: 6px;
+}
+
+body.dark .modal-close:hover {
+  color: #e2e8f0;
+  background: #334155;
+}
+
+.modal-body {
+  padding: 20px;
+}
+
+.modal-footer {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  padding: 20px;
+  border-top: 1px solid #e5e7eb;
+}
+
+body.dark .modal-footer {
+  border-top-color: #334155;
+}
+
+@media (max-width: 768px) {
+  .profile-info {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .profile-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .favorites-grid {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+  // Charger les données du profil
+  try {
+    const response = await fetch('/api/profil/');
+    const data = await response.json();
+    
+    document.getElementById('stat-articles').textContent = data.nombre_articles_lus;
+    document.getElementById('stat-posts').textContent = data.nombre_posts_forum;
+    document.getElementById('stat-comments').textContent = data.nombre_commentaires;
+  } catch (err) {
+    console.error('Erreur lors du chargement du profil:', err);
+  }
+
+  // Charger les favoris
+  try {
+    const response = await fetch('/api/favorites/');
+    const data = await response.json();
+    const favoritesList = document.getElementById('favorites-list');
+    
+    document.getElementById('stat-favorites').textContent = data.favorites.length;
+    
+    if (data.favorites.length === 0) {
+      favoritesList.innerHTML = '<p class="empty-state">Vous n\'avez pas encore de favoris</p>';
+    } else {
+      favoritesList.innerHTML = data.favorites.map(fav => `
+        <div class="favorite-card" onclick="window.location.href='/article/${fav.slug}/'">
+          <img src="${fav.image}" alt="${fav.titre}" onerror="this.src='https://via.placeholder.com/250x150?text=Article'">
+          <div class="favorite-card-content">
+            <h3 class="favorite-card-title">${fav.titre}</h3>
+            <p class="favorite-card-date">${fav.date_ajout}</p>
+          </div>
+        </div>
+      `).join('');
+    }
+  } catch (err) {
+    console.error('Erreur lors du chargement des favoris:', err);
+  }
+
+  // Onglets
+  document.querySelectorAll('.profile-tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const tab = btn.dataset.tab;
+      
+      document.querySelectorAll('.profile-tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.profile-tab-content').forEach(c => c.classList.remove('active'));
+      
+      btn.classList.add('active');
+      document.querySelector(`.profile-tab-content[data-tab="${tab}"]`).classList.add('active');
+    });
+  });
+
+  // Modale d'édition
+  const editBtn = document.getElementById('edit-profile-btn');
+  const modal = document.getElementById('edit-profile-modal');
+  const closeBtn = modal.querySelector('.modal-close');
+  const overlay = modal.querySelector('.modal-overlay');
+  
+  editBtn.addEventListener('click', () => {
+    modal.classList.remove('hidden');
+  });
+  
+  closeBtn.addEventListener('click', () => {
+    modal.classList.add('hidden');
+  });
+  
+  overlay.addEventListener('click', () => {
+    modal.classList.add('hidden');
+  });
+
+  // Sauvegarder le profil
+  document.getElementById('edit-profile-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const formData = new FormData(document.getElementById('edit-profile-form'));
+    const data = Object.fromEntries(formData);
+    
+    try {
+      const response = await fetch('/api/profil/update/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]')?.value || ''
+        },
+        body: JSON.stringify(data)
+      });
+      
+      if (response.ok) {
+        alert('Profil mis à jour avec succès!');
+        modal.classList.add('hidden');
+        location.reload();
+      }
+    } catch (err) {
+      console.error('Erreur:', err);
+      alert('Erreur lors de la mise à jour');
+    }
+  });
+
+  // Compteur de bio
+  const bioInput = document.getElementById('bio');
+  const bioCount = document.getElementById('bio-count');
+  
+  if (bioInput && bioCount) {
+    bioInput.addEventListener('input', () => {
+      bioCount.textContent = `${bioInput.value.length}/500`;
+    });
+  }
+});
+</script>
+{% endblock %}

@@ -6,12 +6,19 @@
   <title>{% block title %}L'Air du Vol®{% endblock %}</title>
   <link rel="stylesheet" href="{% static 'css/style.css' %}">
   <link rel="stylesheet" href="{% static 'css/chat.css' %}">
-  <link rel="stylesheet" href="{% static 'css/ads.css' %}">
+  <link rel="stylesheet" href="{% static 'css/user-settings.css' %}">
+  <link rel="stylesheet" href="{% static 'css/onboarding.css' %}">
+  <link rel="stylesheet" href="{% static 'css/offline.css' %}">
+  <link rel="stylesheet" href="{% static 'css/article-interactions.css' %}">
+  <link rel="stylesheet" href="{% static 'css/notifications.css' %}">
+  <link rel="stylesheet" href="{% static 'css/dark-mode-complete.css' %}">
+  <link rel="stylesheet" href="{% static 'css/dark-mode-auth.css' %}">
+  <link rel="stylesheet" href="{% static 'css/dark-mode-forum.css' %}">>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" href="{% static 'images/logo.png' %}" type="image/png">
   {% block extra_css %}{% endblock %}
 </head>
-<body>
+<body data-authenticated="{% if user.is_authenticated %}true{% else %}false{% endif %}">
   <!-- Barre du haut -->
   <header class="topbar">
     <div class="logo-site">
@@ -19,38 +26,67 @@
       <img src="{% static 'images/logo.png' %}" alt="Logo" class="logo-img">
       <span class="site-name">L'Air du vol®</span>
     </div>
-    <button id="toggle-theme" class="theme-toggle">
-      <span class="theme-icon">🌙</span>
-      <span class="theme-text">Mode Sombre</span>
-    </button>
+    
+    <!-- Notifications en temps réel -->
+    {% if user.is_authenticated %}
+    <div class="topbar-notifications">
+      <button id="notifications-bell" class="notifications-bell" title="Notifications">
+        🔔 <span id="notifications-count" class="notifications-count" style="display: none;">0</span>
+      </button>
+      <div id="notifications-panel" class="notifications-panel" style="display: none;">
+        <div class="notifications-header">
+          <h3>Notifications</h3>
+          <button id="mark-all-read" class="mark-all-read">Marquer tout comme lu</button>
+        </div>
+        <div id="notifications-list" class="notifications-list">
+          <p class="empty-message">Aucune notification</p>
+        </div>
+      </div>
+    </div>
+    {% endif %}
   </header>
 
   <!-- Menu latéral -->
   <nav class="sidebar">
     <ul class="menu">
       <li><a href="{% url 'index' %}">Accueil 🏠</a></li>
+      
       <li class="has-submenu">
         <a href="#">Exploration 📚 </a>
         <ul class="sous-menu">
           <li><a href="{% url 'liste_articles' %}">Articles 📰</a></li>
           <li><a href="{% url 'liste_medias' %}">Médias 🖥️</a></li>
           <li><a href="{% url 'liste_liens' %}">Liens 🔗</a></li>
+          <li><a href="{% url 'liste_catalogue' %}">Catalogue Avion ✈️</a></li>
         </ul>
       </li>
+      
       <li class="has-submenu">
         <a href="#">Communauté 👥</a>
         <ul class="sous-menu">
           <li><a href="{% url 'contact' %}">Nous contacter 📞</a></li>
           <li><a href="{% url 'forum' %}">Forum 💬</a></li>
-        </ul>
           {% if user.is_authenticated %}
-            <li class="sous-menu-title">Ajouter du contenu:</li>
-            <li><a href="{% url 'ajouter_article' %}">➕ Article</a></li>
-            <li><a href="{% url 'ajouter_media' %}">➕ Média</a></li>
-            <li><a href="{% url 'ajouter_lien' %}">➕ Lien</a></li>
+            <li style="border-top: 1px solid #ddd; margin-top: 0.5rem; padding-top: 0.5rem;">
+              <a href="{% url 'user_profile' %}">👤 Mon Profil</a>
+            </li>
           {% endif %}
+        </ul>
       </li>
-    <li><a href="#footer-cgu">CGU ⚠️</a></li>
+
+      {% if user.is_authenticated %}
+      <li class="has-submenu">
+        <a href="#">➕ Ajouter du contenu</a>
+        <ul class="sous-menu">
+          <li><a href="{% url 'ajouter_article' %}">➕ Article</a></li>
+          <li><a href="{% url 'ajouter_media' %}">➕ Média</a></li>
+          <li><a href="{% url 'ajouter_lien' %}">➕ Lien</a></li>
+          <li><a href="{% url 'ajouter_avion' %}">➕ Avion</a></li>
+        </ul>
+      </li>
+      {% endif %}
+      
+      <li><a href="#footer-cgu">CGU ⚠️</a></li>
     </ul>
     
     <!-- Authentification -->
@@ -106,14 +142,14 @@
     {% block content %}{% endblock %}
   </main>
 
-  <!-- Footer -->
+  <!-- CSRF Token for AJAX requests -->
+  {% csrf_token %}
   <footer class="footer" id="footer-cgu">
     <div class="footer-content">
       <h3>Conditions Générales d'Utilisation</h3>
       <p>En accédant au site <strong>L'Air du vol</strong>, vous acceptez nos conditions générales d'utilisation. Toute reproduction ou diffusion du contenu est interdite sans autorisation.</p>
       <p><strong>&copy; 2025 - L'Air du vol. Tous droits réservés.</strong></p>
-      <p>"Je suis Louis Rivoal, élève de 3ᵉ. J’ai créé ce site , mais il peut contenir des bugs. N’hésitez pas à me contacter ! Merci d'avance !" </p>
-    </div>
+    <p> &copy Site créé par Louis Rivoal.</p>    </div>
   </footer>
 
   <!-- Bouton Assistant IA -->
@@ -126,12 +162,151 @@
         <h3>Assistant IA L'Air du Vol</h3>
         <div class="ai-chat-header-subtitle">⚡ Réponses instantanées</div>
       </div>
+      <button id="restart-tutorial-btn" class="restart-tutorial-btn" title="Redémarrer le tutoriel">🎓</button>
       <button id="close-ai-chat" title="Fermer le chat">&times;</button>
     </div>
     <div class="ai-chat-messages" id="ai-chat-messages">
       <div class="ai-message ai system">
         Bienvenue! 👋 Je suis l'assistant IA de L'Air du Vol. Comment puis-je vous aider?
       </div>
+
+  <!-- Script JavaScript pour les notifications -->
+  <script>
+    // Configuration des notifications en temps réel
+    const notificationManager = {
+      bell: document.getElementById('notifications-bell'),
+      panel: document.getElementById('notifications-panel'),
+      list: document.getElementById('notifications-list'),
+      count: document.getElementById('notifications-count'),
+      markAllBtn: document.getElementById('mark-all-read'),
+      
+      init() {
+        if (!this.bell) return; // Pas de notifications pour utilisateurs non connectés
+        
+        this.bell.addEventListener('click', () => this.togglePanel());
+        this.markAllBtn.addEventListener('click', () => this.markAllAsRead());
+        
+        // Récupérer les notifications toutes les 30 secondes
+        this.fetchNotifications();
+        setInterval(() => this.fetchNotifications(), 30000);
+        
+        // Fermer le panneau si on clique ailleurs
+        document.addEventListener('click', (e) => {
+          if (!e.target.closest('.topbar-notifications')) {
+            this.panel.style.display = 'none';
+          }
+        });
+      },
+      
+      togglePanel() {
+        if (this.panel.style.display === 'none' || !this.panel.style.display) {
+          this.panel.style.display = 'block';
+        } else {
+          this.panel.style.display = 'none';
+        }
+      },
+      
+      async fetchNotifications() {
+        try {
+          const response = await fetch('/api/notifications/');
+          const data = await response.json();
+          
+          if (data.success) {
+            this.updatePanel(data.notifications);
+            this.updateBadge(data.count);
+          }
+        } catch (error) {
+          console.error('Erreur récupération notifications:', error);
+        }
+      },
+      
+      updatePanel(notifications) {
+        if (notifications.length === 0) {
+          this.list.innerHTML = '<p class="empty-message">Aucune notification</p>';
+          return;
+        }
+        
+        this.list.innerHTML = notifications.map(notif => `
+          <div class="notification-item unread" data-type="${notif.type}" data-id="${notif.id}">
+            <div class="notification-content">
+              <span class="notification-icon">${this.getIcon(notif.type)}</span>
+              <div class="notification-text">
+                <div class="notification-badge">${notif.type.replace('_', ' ')}</div>
+                <div class="notification-title">${notif.titre}</div>
+                <div class="notification-message">${notif.message}</div>
+                <div class="notification-time">${notif.date}</div>
+              </div>
+            </div>
+          </div>
+        `).join('');
+        
+        // Ajouter les event listeners pour les notifications
+        this.list.querySelectorAll('.notification-item').forEach(item => {
+          item.addEventListener('click', () => {
+            const notifId = item.dataset.id;
+            const type = item.dataset.type;
+            
+            // Marquer comme lue
+            this.markAsRead(notifId);
+            
+            // Rediriger si URL disponible
+            if (item.querySelector('a')) {
+              window.location.href = item.querySelector('a').href;
+            }
+          });
+        });
+      },
+      
+      updateBadge(count) {
+        if (count > 0) {
+          this.count.textContent = count;
+          this.count.style.display = 'flex';
+          this.bell.classList.add('has-unread');
+        } else {
+          this.count.style.display = 'none';
+          this.bell.classList.remove('has-unread');
+        }
+      },
+      
+      async markAsRead(notifId) {
+        try {
+          await fetch(`/api/notifications/${notifId}/lue/`, { method: 'POST' });
+          this.fetchNotifications();
+        } catch (error) {
+          console.error('Erreur marquage notification:', error);
+        }
+      },
+      
+      async markAllAsRead() {
+        try {
+          await fetch('/api/notifications/marquer-toutes-lues/', { method: 'POST' });
+          this.fetchNotifications();
+        } catch (error) {
+          console.error('Erreur marquage notifications:', error);
+        }
+      },
+      
+      getIcon(type) {
+        const icons = {
+          'forum_reponse': '💬',
+          'forum_mention': '@️',
+          'article_nouveau': '📰',
+          'media_nouveau': '🎥',
+          'catalogue_nouveau': '✈️',
+          'commentaire_reponse': '💭',
+          'auth_required': '🔐',
+        };
+        return icons[type] || '🔔';
+      }
+    };
+    
+    // Initialiser quand le DOM est prêt
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => notificationManager.init());
+    } else {
+      notificationManager.init();
+    }
+  </script>
     </div>
     <div class="typing-indicator" id="typing-indicator">
       <div class="typing-dots"><span></span><span></span><span></span></div>
@@ -142,10 +317,12 @@
     </div>
   </div>
 
-  <script src="{% static 'js/dark-mode.js' %}"></script>
+  <script src="{% static 'js/user-settings.js' %}"></script>
+  <script src="{% static 'js/onboarding.js' %}"></script>
+  <script src="{% static 'js/offline.js' %}"></script>
+  <script src="{% static 'js/article-interactions.js' %}"></script>
   <script src="{% static 'js/main.js' %}"></script>
   <script src="{% static 'js/ai-chat.js' %}"></script>
-  <script src="{% static 'js/ads.js' %}"></script>
   {% block extra_js %}{% endblock %}
 </body>
 </html>

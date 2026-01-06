@@ -1,0 +1,257 @@
+{% extends 'donnelouis/base.html' %}
+{% load static %}
+
+{% block title %}Vidéos & Podcasts - L'Air du Vol®{% endblock %}
+
+{% block content %}
+<!-- Hero section -->
+<div class="medias-hero">
+  <h1>🎬 Vidéos & Podcasts</h1>
+  <p>Explorez notre sélection de contenus vidéo documentaires et de podcasts sur l'histoire et l'innovation aéronautique</p>
+</div>
+
+<!-- Section filtres et recherche -->
+<div class="filters-section">
+  <div class="filters-header">
+    <h2 class="filters-title">Filtrer & Rechercher</h2>
+    <div class="results-count" id="results-count">{{ medias.count }} médias trouvés</div>
+  </div>
+
+  <!-- Barre de recherche -->
+  <div class="search-bar-advanced">
+    <input type="text" id="search-input" placeholder="Rechercher un média par titre, description...">
+    <button class="search-clear" id="search-clear">×</button>
+  </div>
+
+  <!-- Filtres par type -->
+  <div class="category-filters">
+    <button class="category-btn active" data-category="all">
+      ✨ Tous les médias
+      <span class="category-badge">{{ medias.count }}</span>
+    </button>
+    <button class="category-btn" data-category="video">
+      📹 Vidéos
+      <span class="category-badge">{{ stats.videos }}</span>
+    </button>
+    <button class="category-btn" data-category="podcast">
+      🎙️ Podcasts
+      <span class="category-badge">{{ stats.podcasts }}</span>
+    </button>
+  </div>
+
+  <!-- Contrôles de vue et tri -->
+  <div class="view-controls">
+    <div class="sort-controls">
+      <span class="sort-label">Trier par:</span>
+      <button class="sort-btn active" data-sort="recent">📅 Plus récent</button>
+      <button class="sort-btn" data-sort="old">🕐 Plus ancien</button>
+      <button class="sort-btn" data-sort="title">🔤 Alphabétique</button>
+    </div>
+    <div class="view-toggles">
+      <button class="view-toggle active" data-view="grid" title="Vue grille">▦</button>
+      <button class="view-toggle" data-view="list" title="Vue liste">☰</button>
+    </div>
+  </div>
+</div>
+
+<!-- Grille de médias -->
+<div class="medias-grid" id="medias-grid">
+  {% for media in medias %}
+  <div class="media-card" 
+       data-category="{{ media.type_media }}" 
+       data-date="{{ media.date_publication|date:'Y-m-d' }}" 
+       data-title="{{ media.titre|lower }}"
+       data-url="{% url 'detail_media' media.slug %}"
+       style="cursor: pointer;"
+       onclick="if(this.dataset.url) window.location.href = this.dataset.url;">
+    <div class="media-type-badge {{ media.type_media }}">
+      {% if media.type_media == 'video' %}📹 Vidéo
+      {% else %}🎙️ Podcast{% endif %}
+    </div>
+    
+    {% if media.image_principale %}
+    <img src="{{ media.image_principale }}" alt="{{ media.titre }}">
+    {% else %}
+    <img src="https://via.placeholder.com/400x240/0A2463/FFFFFF?text={{ media.titre|urlencode }}" alt="{{ media.titre }}">
+    {% endif %}
+    
+    <div class="card-content">
+      <h3>{{ media.titre }}</h3>
+      <p>{{ media.description|truncatewords:20 }}</p>
+      <span class="btn read-more">Visionner</span>
+      <div class="media-meta">
+        <small class="author">Par {{ media.auteur }}</small>
+        <small class="date">{{ media.date_publication|date:"d F Y" }}</small>
+      </div>
+    </div>
+  </div>
+  {% empty %}
+  <div class="no-results show">
+    <h3>Aucun média trouvé</h3>
+    <p>Nous n'avons pas encore de médias. Revenez bientôt !</p>
+  </div>
+  {% endfor %}
+</div>
+
+<style>
+.medias-hero {
+  background: linear-gradient(135deg, #0A2463 0%, #247BA0 100%);
+  color: white;
+  padding: 60px 20px;
+  text-align: center;
+  margin-bottom: 40px;
+  border-radius: 10px;
+}
+
+.medias-hero h1 {
+  font-size: 2.5em;
+  margin: 0 0 10px 0;
+}
+
+.medias-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 30px;
+  margin-top: 30px;
+}
+
+.media-card {
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.media-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
+}
+
+.media-card img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+}
+
+.media-type-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.8em;
+  font-weight: bold;
+  color: white;
+}
+
+.media-type-badge.video {
+  background-color: #E63946;
+}
+
+.media-type-badge.podcast {
+  background-color: #F1FAEE;
+  color: #0A2463;
+}
+
+.card-content {
+  padding: 20px;
+}
+
+.card-content h3 {
+  margin: 0 0 10px 0;
+  color: #0A2463;
+  font-size: 1.2em;
+}
+
+.card-content p {
+  color: #666;
+  margin: 0 0 15px 0;
+  font-size: 0.9em;
+}
+
+.media-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8em;
+  color: #999;
+}
+</style>
+
+<script>
+// Filtrage par catégorie
+document.querySelectorAll('.category-btn').forEach(btn => {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+    this.classList.add('active');
+    
+    const category = this.dataset.category;
+    const cards = document.querySelectorAll('.media-card');
+    let visibleCount = 0;
+    
+    cards.forEach(card => {
+      if (category === 'all' || card.dataset.category === category) {
+        card.style.display = '';
+        visibleCount++;
+      } else {
+        card.style.display = 'none';
+      }
+    });
+    
+    document.getElementById('results-count').textContent = `${visibleCount} média(s) trouvé(s)`;
+  });
+});
+
+// Recherche
+const searchInput = document.getElementById('search-input');
+const searchClear = document.getElementById('search-clear');
+
+searchInput.addEventListener('input', function() {
+  const query = this.value.toLowerCase();
+  const cards = document.querySelectorAll('.media-card');
+  let visibleCount = 0;
+  
+  cards.forEach(card => {
+    const title = card.dataset.title;
+    if (title.includes(query)) {
+      card.style.display = '';
+      visibleCount++;
+    } else {
+      card.style.display = 'none';
+    }
+  });
+  
+  document.getElementById('results-count').textContent = `${visibleCount} média(s) trouvé(s)`;
+});
+
+searchClear.addEventListener('click', function() {
+  searchInput.value = '';
+  searchInput.dispatchEvent(new Event('input'));
+});
+
+// Tri
+document.querySelectorAll('.sort-btn').forEach(btn => {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
+    this.classList.add('active');
+    
+    const sortType = this.dataset.sort;
+    const grid = document.getElementById('medias-grid');
+    const cards = Array.from(grid.querySelectorAll('.media-card'));
+    
+    cards.sort((a, b) => {
+      if (sortType === 'recent') {
+        return new Date(b.dataset.date) - new Date(a.dataset.date);
+      } else if (sortType === 'old') {
+        return new Date(a.dataset.date) - new Date(b.dataset.date);
+      } else if (sortType === 'title') {
+        return a.dataset.title.localeCompare(b.dataset.title);
+      }
+    });
+    
+    grid.innerHTML = '';
+    cards.forEach(card => grid.appendChild(card));
+  });
+});
+</script>
+{% endblock %}

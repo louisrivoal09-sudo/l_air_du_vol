@@ -1,0 +1,264 @@
+{% extends 'donnelouis/base.html' %}
+{% load static %}
+
+{% block title %}Nous contacter - L'Air du Vol®{% endblock %}
+
+{% block content %}
+<div class="contact-container">
+  <!-- Hero Section -->
+  <div class="contact-hero">
+    <h1>📬 Nous contacter</h1>
+    <p>Vous avez une question, une suggestion ou un avis? N'hésitez pas à nous écrire!</p>
+  </div>
+
+  <!-- Messages -->
+  {% if messages %}
+    <div class="messages">
+      {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+          {{ message }}
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <!-- Formulaire de contact -->
+  <div class="contact-form-wrapper">
+    <form method="POST" class="contact-form">
+      {% csrf_token %}
+      
+      <div class="form-group">
+        <label for="id_nom">Votre nom:</label>
+        {{ form.nom }}
+        {% if form.nom.errors %}
+          <span class="error">{{ form.nom.errors.0 }}</span>
+        {% endif %}
+      </div>
+
+      <div class="form-group">
+        <label for="id_email">Votre email:</label>
+        {{ form.email }}
+        {% if form.email.errors %}
+          <span class="error">{{ form.email.errors.0 }}</span>
+        {% endif %}
+      </div>
+
+      <div class="form-group">
+        <label for="id_sujet">Sujet:</label>
+        {{ form.sujet }}
+        {% if form.sujet.errors %}
+          <span class="error">{{ form.sujet.errors.0 }}</span>
+        {% endif %}
+      </div>
+
+      <div class="form-group">
+        <label for="id_message">Message:</label>
+        {{ form.message }}
+        {% if form.message.errors %}
+          <span class="error">{{ form.message.errors.0 }}</span>
+        {% endif %}
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-large">
+        📧 Envoyer le message
+      </button>
+    </form>
+  </div>
+
+  <!-- Informations supplémentaires -->
+  <div class="contact-info">
+    <div class="info-card">
+      <h3>📧 Email</h3>
+      <p>louis.rivoal09@gmail.com</p>
+    </div>
+    <div class="info-card">
+      <h3>⚡ Réponse rapide</h3>
+      <p>Nous vous répondrons dans les meilleurs délais</p>
+    </div>
+    <div class="info-card">
+      <h3>✓ Confidentialité</h3>
+      <p>Vos données sont sécurisées et confidentielles</p>
+    </div>
+  </div>
+</div>
+
+<style>
+.contact-container {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+.contact-hero {
+  background: linear-gradient(135deg, #0A2463 0%, #247BA0 100%);
+  color: white;
+  padding: 60px 20px;
+  text-align: center;
+  border-radius: 10px;
+  margin-bottom: 40px;
+}
+
+.contact-hero h1 {
+  font-size: 2.2em;
+  margin: 0 0 10px 0;
+}
+
+.contact-hero p {
+  font-size: 1.1em;
+  margin: 0;
+  opacity: 0.9;
+}
+
+.messages {
+  margin: 20px 0;
+}
+
+.alert {
+  padding: 15px;
+  border-radius: 6px;
+  margin-bottom: 10px;
+  font-weight: bold;
+}
+
+.alert-success {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.alert-warning {
+  background-color: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeeba;
+}
+
+.alert-error {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.contact-form-wrapper {
+  background: #f8f9fa;
+  padding: 30px;
+  border-radius: 8px;
+  margin-bottom: 40px;
+}
+
+.contact-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: bold;
+  color: #0A2463;
+}
+
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 2px solid #ddd;
+  border-radius: 6px;
+  font-size: 1em;
+  font-family: inherit;
+  transition: border-color 0.3s;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #247BA0;
+  box-shadow: 0 0 0 3px rgba(36, 123, 160, 0.1);
+}
+
+.error {
+  color: #E63946;
+  font-size: 0.9em;
+  margin-top: 5px;
+  display: block;
+}
+
+.btn {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-size: 1em;
+}
+
+.btn-primary {
+  background-color: #0A2463;
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: #247BA0;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(10, 36, 99, 0.3);
+}
+
+.btn-large {
+  width: 100%;
+  padding: 14px;
+  font-size: 1.1em;
+}
+
+.contact-info {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+}
+
+.info-card {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.info-card h3 {
+  color: #0A2463;
+  margin: 0 0 10px 0;
+  font-size: 1.1em;
+}
+
+.info-card p {
+  color: #666;
+  margin: 0;
+  font-size: 0.95em;
+}
+
+@media (max-width: 768px) {
+  .contact-container {
+    padding: 20px;
+  }
+
+  .contact-hero {
+    padding: 40px 20px;
+  }
+
+  .contact-hero h1 {
+    font-size: 1.8em;
+  }
+
+  .contact-form-wrapper {
+    padding: 20px;
+  }
+
+  .contact-info {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
+{% endblock %}

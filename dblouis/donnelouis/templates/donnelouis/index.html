@@ -47,7 +47,7 @@
     </a>
 
     <!-- Carte Médias -->
-    <a href="#" class="page-card" style="text-decoration: none;">
+    <a href="{% url 'liste_medias' %}" class="page-card" style="text-decoration: none;">
       <div class="page-card-icon">🖥️</div>
       <h3 class="page-card-title">Médias</h3>
       <p class="page-card-description">Découvrez notre sélection de vidéos documentaires et de podcasts sur l'histoire de l'aviation et ses innovations.</p>
@@ -57,12 +57,22 @@
       </div>
     </a>
     <!-- Carte Liens -->
-    <a href="#" class="page-card" style="text-decoration: none;">
+    <a href="{% url 'liste_liens' %}" class="page-card" style="text-decoration: none;">
       <div class="page-card-icon">🔗</div>
       <h3 class="page-card-title">Liens Utiles</h3>
       <p class="page-card-description">Accédez à notre sélection de ressources externes, sites spécialisés et références incontournables de l'aviation.</p>
       <div class="page-card-footer">
         <span class="page-card-count">Ressources</span>
+        <span class="page-card-arrow">→</span>
+      </div>
+    </a>
+    <!-- Carte Catalogue Avion -->
+    <a href="{% url 'liste_catalogue' %}" class="page-card" style="text-decoration: none;">
+      <div class="page-card-icon">✈️</div>
+      <h3 class="page-card-title">Catalogue Avion</h3>
+      <p class="page-card-description">Parcourez notre catalogue d'avions, découvrez les modèles, constructeurs et caractéristiques techniques.</p>
+      <div class="page-card-footer">
+        <span class="page-card-count">Avions</span>
         <span class="page-card-arrow">→</span>
       </div>
     </a>

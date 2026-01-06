@@ -1,0 +1,229 @@
+{% extends 'donnelouis/base.html' %}
+{% load static %}
+
+{% block title %}Catalogue des avions - L'Air du Vol®{% endblock %}
+
+{% block content %}
+<!-- Hero section -->
+<div class="articles-hero">
+  <h1>✈️ Catalogue des avions</h1>
+  <p>Explorez notre collection complète d'avions civils, militaires et historiques avec leurs caractéristiques techniques</p>
+</div>
+
+<!-- Section filtres et recherche -->
+<div class="filters-section">
+  <div class="filters-header">
+    <h2 class="filters-title">Filtrer & Rechercher</h2>
+    <div class="results-count" id="results-count">{{ avions.count }} avions trouvés</div>
+  </div>
+
+  <!-- Barre de recherche -->
+  <div class="search-bar-advanced">
+    <input type="text" id="search-input" placeholder="Rechercher un avion par nom, constructeur ou type...">
+    <button class="search-clear" id="search-clear">×</button>
+  </div>
+
+  <!-- Filtres par constructeur -->
+  <div class="category-filters">
+    <button class="category-btn active" data-category="all">
+      ✨ Tous les avions
+      <span class="category-badge">{{ avions.count }}</span>
+    </button>
+    {% for constructeur, count in stats.constructeurs.items %}
+    <button class="category-btn" data-category="constructor-{{ constructeur|slugify }}">
+      🏢 {{ constructeur }}
+      <span class="category-badge">{{ count }}</span>
+    </button>
+    {% endfor %}
+  </div>
+
+  <!-- Contrôles de vue et tri -->
+  <div class="view-controls">
+    <div class="sort-controls">
+      <span class="sort-label">Trier par:</span>
+      <button class="sort-btn active" data-sort="recent">📅 Plus récent</button>
+      <button class="sort-btn" data-sort="old">🕐 Plus ancien</button>
+      <button class="sort-btn" data-sort="title">🔤 Alphabétique</button>
+    </div>
+    <div class="view-toggles">
+      <button class="view-toggle active" data-view="grid" title="Vue grille">▦</button>
+      <button class="view-toggle" data-view="list" title="Vue liste">☰</button>
+      <button class="view-toggle" data-view="compact" title="Vue compacte">▤</button>
+    </div>
+  </div>
+</div>
+
+<!-- Grille d'avions -->
+<div class="articles-grid" id="articles-grid">
+  {% for avion in avions %}
+  <div class="article-card" 
+       data-category="constructor-{{ avion.constructeur|slugify }}" 
+       data-date="{{ avion.date_creation|date:'Y-m-d' }}" 
+       data-title="{{ avion.nom|lower }}"
+       data-url="{% url 'detail_catalogue' avion.slug %}"
+       style="cursor: pointer;"
+       onclick="if(this.dataset.url) window.location.href = this.dataset.url;">
+    <div class="article-category-badge">
+      {{ avion.type_avion }}
+    </div>
+    
+    {% if avion.image_principale %}
+    <img src="{{ avion.image_principale }}" alt="{{ avion.nom }}">
+    {% else %}
+    <img src="https://via.placeholder.com/400x240/0A2463/FFFFFF?text={{ avion.nom|urlencode }}" alt="{{ avion.nom }}">
+    {% endif %}
+    
+    <div class="card-content">
+      <h3>{{ avion.nom }}</h3>
+      <p><strong>{{ avion.constructeur }}</strong> • {{ avion.type_avion }}</p>
+      {% if avion.annee_premier_vol %}
+      <p style="font-size: 0.9rem; color: var(--text-gray);">Premier vol: {{ avion.annee_premier_vol }}{% if avion.capacite %} • Capacité: {{ avion.capacite }}{% endif %}</p>
+      {% endif %}
+      <span class="btn read-more">Voir détails</span>
+      <div class="article">
+        <small class="date">Ajouté le {{ avion.date_creation|date:"d F Y" }}</small>
+      </div>
+    </div>
+  </div>
+  {% empty %}
+  <div class="no-results show">
+    <h3>Aucun avion trouvé</h3>
+    <p>Nous n'avons pas encore d'avions. Revenez bientôt !</p>
+  </div>
+  {% endfor %}
+</div>
+
+<!-- Message "aucun résultat" -->
+<div class="no-results" id="no-results">
+  <h3>Aucun avion trouvé</h3>
+  <p>Essayez de modifier vos filtres ou votre recherche pour trouver d'autres avions.</p>
+  <button class="reset-filters-btn" id="reset-filters">Réinitialiser les filtres</button>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Script de filtrage côté client
+document.addEventListener('DOMContentLoaded', function() {
+  const searchInput = document.getElementById('search-input');
+  const searchClear = document.getElementById('search-clear');
+  const categoryBtns = document.querySelectorAll('.category-btn');
+  const sortBtns = document.querySelectorAll('.sort-btn');
+  const viewToggles = document.querySelectorAll('.view-toggle');
+  const articlesGrid = document.getElementById('articles-grid');
+  const resultsCount = document.getElementById('results-count');
+  const noResults = document.getElementById('no-results');
+  const resetFiltersBtn = document.getElementById('reset-filters');
+  
+  let currentCategory = 'all';
+  let currentSort = 'recent';
+  let searchQuery = '';
+  
+  // Fonction de filtrage
+  function filterArticles() {
+    const cards = document.querySelectorAll('.article-card');
+    let visibleCount = 0;
+    
+    cards.forEach(card => {
+      const category = card.dataset.category;
+      const title = card.dataset.title.toLowerCase();
+      const description = card.querySelector('p').textContent.toLowerCase();
+      const date = card.querySelector('.date').textContent.toLowerCase();
+      
+      const matchCategory = currentCategory === 'all' || category === currentCategory;
+      const matchSearch = !searchQuery || 
+                         title.includes(searchQuery) || 
+                         description.includes(searchQuery) || 
+                         date.includes(searchQuery);
+      
+      if (matchCategory && matchSearch) {
+        card.classList.remove('hidden');
+        visibleCount++;
+      } else {
+        card.classList.add('hidden');
+      }
+    });
+    
+    resultsCount.textContent = `${visibleCount} avion${visibleCount > 1 ? 's' : ''} trouvé${visibleCount > 1 ? 's' : ''}`;
+    
+    if (visibleCount === 0) {
+      noResults.classList.add('show');
+      articlesGrid.style.display = 'none';
+    } else {
+      noResults.classList.remove('show');
+      articlesGrid.style.display = '';
+      sortArticles();
+    }
+  }
+  
+  // Recherche
+  searchInput.addEventListener('input', (e) => {
+    searchQuery = e.target.value.toLowerCase().trim();
+    searchClear.classList.toggle('show', searchQuery !== '');
+    filterArticles();
+  });
+  
+  searchClear.addEventListener('click', () => {
+    searchInput.value = '';
+    searchQuery = '';
+    searchClear.classList.remove('show');
+    filterArticles();
+  });
+  
+  // Catégories
+  categoryBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      categoryBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentCategory = btn.dataset.category;
+      filterArticles();
+    });
+  });
+  
+  // Tri
+  sortBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      sortBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentSort = btn.dataset.sort;
+      sortArticles();
+    });
+  });
+  
+  function sortArticles() {
+    const cards = Array.from(document.querySelectorAll('.article-card:not(.hidden)'));
+    cards.sort((a, b) => {
+      if (currentSort === 'recent') {
+        return new Date(b.dataset.date) - new Date(a.dataset.date);
+      } else if (currentSort === 'old') {
+        return new Date(a.dataset.date) - new Date(b.dataset.date);
+      } else {
+        return a.dataset.title.localeCompare(b.dataset.title);
+      }
+    });
+    cards.forEach(card => articlesGrid.appendChild(card));
+  }
+  
+  // Vue
+  viewToggles.forEach(toggle => {
+    toggle.addEventListener('click', () => {
+      viewToggles.forEach(t => t.classList.remove('active'));
+      toggle.classList.add('active');
+      const view = toggle.dataset.view;
+      articlesGrid.classList.remove('list-view', 'compact-view');
+      if (view === 'list') articlesGrid.classList.add('list-view');
+      if (view === 'compact') articlesGrid.classList.add('compact-view');
+    });
+  });
+  
+  // Reset
+  resetFiltersBtn.addEventListener('click', () => {
+    searchInput.value = '';
+    searchQuery = '';
+    currentCategory = 'all';
+    categoryBtns.forEach(btn => btn.classList.toggle('active', btn.dataset.category === 'all'));
+    filterArticles();
+  });
+});
+</script>
+{% endblock %}

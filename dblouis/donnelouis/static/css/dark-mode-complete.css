@@ -1,0 +1,603 @@
+/* ========== MODE SOMBRE - STYLES COMPLETS ========== */
+/* Complément CSS pour les styles body.dark manquants */
+
+/* --------- TOPBAR & NAVIGATION --------- */
+body.dark .topbar {
+  background: rgba(15, 23, 42, 0.95);
+  border-bottom-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+body.dark .topbar .logo-site {
+  color: #E2E8F0;
+}
+
+body.dark .topbar .site-name {
+  color: #F1F5F9;
+}
+
+/* --------- BOUTON TOGGLE THEME --------- */
+body.dark .theme-toggle {
+  background: rgba(255, 255, 255, 0.1);
+  color: #E2E8F0;
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+body.dark .theme-toggle:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* --------- SIDEBAR --------- */
+body.dark .sidebar {
+  background: #1E293B;
+  border-right-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.3);
+}
+
+body.dark .sidebar .menu a {
+  color: #E2E8F0;
+  transition: all 0.3s ease;
+}
+
+body.dark .sidebar .menu a:hover {
+  background: rgba(59, 130, 246, 0.1);
+  color: #3B82F6;
+  border-left-color: #3B82F6;
+}
+
+body.dark .sidebar .menu li.active > a {
+  background: rgba(59, 130, 246, 0.15);
+  color: #60A5FA;
+  border-left-color: #60A5FA;
+}
+
+body.dark .sidebar .sous-menu {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+body.dark .sidebar .sous-menu a {
+  color: #CBD5E1;
+}
+
+body.dark .sidebar .sous-menu a:hover {
+  color: #60A5FA;
+  background: rgba(59, 130, 246, 0.1);
+}
+
+body.dark .sidebar-auth {
+  border-top-color: rgba(255, 255, 255, 0.1);
+}
+
+body.dark .auth-user {
+  color: #E2E8F0;
+}
+
+body.dark .btn-logout {
+  background: rgba(239, 68, 68, 0.1);
+  color: #F87171;
+  border-color: rgba(239, 68, 68, 0.2);
+}
+
+body.dark .btn-logout:hover {
+  background: rgba(239, 68, 68, 0.2);
+  color: #FCA5A5;
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+body.dark .btn-auth {
+  border-color: rgba(255, 255, 255, 0.2);
+  transition: all 0.3s ease;
+}
+
+body.dark .btn-login {
+  color: #60A5FA;
+  background: rgba(59, 130, 246, 0.1);
+  border-color: rgba(59, 130, 246, 0.3);
+}
+
+body.dark .btn-login:hover {
+  background: rgba(59, 130, 246, 0.15);
+  border-color: rgba(59, 130, 246, 0.5);
+}
+
+body.dark .btn-signup {
+  color: #34D399;
+  background: rgba(52, 211, 153, 0.1);
+  border-color: rgba(52, 211, 153, 0.3);
+}
+
+body.dark .btn-signup:hover {
+  background: rgba(52, 211, 153, 0.15);
+  border-color: rgba(52, 211, 153, 0.5);
+}
+
+/* --------- BANNEAU PREMIUM --------- */
+body.dark .premium-banner {
+  background: linear-gradient(135deg, rgba(10, 36, 99, 0.2) 0%, rgba(59, 130, 246, 0.1) 100%);
+  border-color: rgba(59, 130, 246, 0.2);
+}
+
+body.dark .premium-banner-text h3 {
+  color: #60A5FA;
+}
+
+body.dark .premium-banner-text p,
+body.dark .premium-banner-text ul {
+  color: #CBD5E1;
+}
+
+body.dark .btn-premium-signup,
+body.dark .btn-premium-login {
+  background: linear-gradient(135deg, #3B82F6 0%, #1E40AF 100%);
+  color: white;
+}
+
+body.dark .btn-premium-signup:hover,
+body.dark .btn-premium-login:hover {
+  background: linear-gradient(135deg, #60A5FA 0%, #3B82F6 100%);
+}
+
+body.dark .premium-banner-counter {
+  color: #94A3B8;
+  background: rgba(59, 130, 246, 0.1);
+}
+
+/* --------- CARTES & CONTENU --------- */
+body.dark .card {
+  background: #1E293B;
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+}
+
+body.dark .card:hover {
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.6);
+  border-color: rgba(59, 130, 246, 0.3);
+}
+
+body.dark .card-content h3 {
+  color: #F1F5F9;
+}
+
+body.dark .card-content h4 {
+  color: #E2E8F0;
+}
+
+body.dark .card-content p {
+  color: #94A3B8;
+}
+
+body.dark .card-meta {
+  color: #64748B;
+}
+
+body.dark .card-footer {
+  border-top-color: rgba(255, 255, 255, 0.1);
+}
+
+/* --------- BOUTONS --------- */
+body.dark .btn-primary {
+  background: linear-gradient(135deg, #3B82F6 0%, #1E40AF 100%);
+  color: white;
+  box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
+}
+
+body.dark .btn-primary:hover {
+  background: linear-gradient(135deg, #60A5FA 0%, #3B82F6 100%);
+  box-shadow: 0 12px 30px rgba(59, 130, 246, 0.4);
+}
+
+body.dark .btn-secondary {
+  background: rgba(255, 255, 255, 0.1);
+  color: #E2E8F0;
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+body.dark .btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+body.dark .btn-outline {
+  border-color: rgba(59, 130, 246, 0.3);
+  color: #60A5FA;
+}
+
+body.dark .btn-outline:hover {
+  background: rgba(59, 130, 246, 0.1);
+  border-color: rgba(59, 130, 246, 0.5);
+}
+
+/* --------- FOOTER --------- */
+body.dark .footer {
+  background: linear-gradient(180deg, #1E293B 0%, #0F172A 100%);
+  border-top-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.3);
+}
+
+body.dark .footer h3 {
+  color: #F1F5F9;
+}
+
+body.dark .footer p,
+body.dark .footer a {
+  color: #94A3B8;
+}
+
+body.dark .footer a:hover {
+  color: #60A5FA;
+}
+
+body.dark .footer-content {
+  border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+
+/* --------- FORMULAIRES --------- */
+body.dark .form-column,
+body.dark .preview-column {
+  background: #1E293B;
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+body.dark .form-group label {
+  color: #E2E8F0;
+}
+
+body.dark .form-group input,
+body.dark .form-group textarea,
+body.dark .form-group select {
+  background: #0F172A;
+  color: #E2E8F0;
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+body.dark .form-group input::placeholder,
+body.dark .form-group textarea::placeholder {
+  color: #64748B;
+}
+
+body.dark .form-group input:focus,
+body.dark .form-group textarea:focus,
+body.dark .form-group select:focus {
+  border-color: rgba(59, 130, 246, 0.5);
+  background: #1E293B;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+body.dark .form-group input:valid {
+  border-color: rgba(52, 211, 153, 0.5);
+}
+
+body.dark .form-group input:invalid {
+  border-color: rgba(239, 68, 68, 0.5);
+}
+
+body.dark .image-upload {
+  background: rgba(59, 130, 246, 0.05);
+  border-color: rgba(59, 130, 246, 0.3);
+  color: #94A3B8;
+}
+
+body.dark .image-upload:hover {
+  background: rgba(59, 130, 246, 0.1);
+  border-color: rgba(59, 130, 246, 0.5);
+  color: #CBD5E1;
+}
+
+body.dark .preview-resume {
+  background: #0F172A;
+  color: #E2E8F0;
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+body.dark .preview-images {
+  background: #0F172A;
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+body.dark .upload-instructions {
+  color: #94A3B8;
+}
+
+/* --------- CONTENU ARTICLE --------- */
+body.dark .article-content {
+  color: #E2E8F0;
+}
+
+body.dark .article-content h2,
+body.dark .article-content h3 {
+  color: #F1F5F9;
+  border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+
+body.dark .article-content p {
+  color: #CBD5E1;
+}
+
+body.dark .article-content blockquote {
+  background: rgba(59, 130, 246, 0.1);
+  border-left-color: #3B82F6;
+  color: #94A3B8;
+}
+
+body.dark .article-content code {
+  background: #0F172A;
+  color: #60A5FA;
+  border-color: rgba(59, 130, 246, 0.2);
+}
+
+body.dark .article-content pre {
+  background: #0F172A;
+  color: #E2E8F0;
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+body.dark .article-toc {
+  background: #1E293B;
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+body.dark .article-toc h4,
+body.dark .article-toc a {
+  color: #CBD5E1;
+}
+
+body.dark .article-toc a:hover {
+  color: #60A5FA;
+}
+
+/* --------- MODAL & DIALOG --------- */
+body.dark .modal,
+body.dark .dialog {
+  background: #1E293B;
+  color: #E2E8F0;
+}
+
+body.dark .modal-header,
+body.dark .dialog-header {
+  border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+
+body.dark .modal-title,
+body.dark .dialog-title {
+  color: #F1F5F9;
+}
+
+body.dark .modal-close,
+body.dark .dialog-close {
+  color: #94A3B8;
+}
+
+body.dark .modal-close:hover,
+body.dark .dialog-close:hover {
+  color: #E2E8F0;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* --------- LISTE & TABLEAU --------- */
+body.dark .list-item {
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+body.dark .list-item:hover {
+  background: rgba(59, 130, 246, 0.05);
+}
+
+body.dark table {
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+body.dark thead {
+  background: rgba(15, 23, 42, 0.5);
+}
+
+body.dark thead th {
+  color: #F1F5F9;
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+body.dark tbody td {
+  color: #CBD5E1;
+  border-color: rgba(255, 255, 255, 0.05);
+}
+
+body.dark tbody tr:hover {
+  background: rgba(59, 130, 246, 0.05);
+}
+
+/* --------- PAGINATION & FILTRES --------- */
+body.dark .pagination a,
+body.dark .pagination button {
+  background: #1E293B;
+  color: #E2E8F0;
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+body.dark .pagination a:hover,
+body.dark .pagination button:hover {
+  background: rgba(59, 130, 246, 0.15);
+  border-color: rgba(59, 130, 246, 0.3);
+  color: #60A5FA;
+}
+
+body.dark .pagination .active {
+  background: #3B82F6;
+  border-color: #3B82F6;
+  color: white;
+}
+
+body.dark .filter-btn {
+  background: #1E293B;
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #CBD5E1;
+}
+
+body.dark .filter-btn:hover {
+  background: rgba(59, 130, 246, 0.1);
+  border-color: #3B82F6;
+  color: #60A5FA;
+}
+
+body.dark .filter-btn.active {
+  background: #3B82F6;
+  border-color: #3B82F6;
+  color: white;
+}
+
+/* --------- FORUM --------- */
+body.dark .forum-post {
+  background: #1E293B;
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+body.dark .forum-post-header {
+  border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+
+body.dark .forum-author {
+  color: #60A5FA;
+}
+
+body.dark .forum-post-content {
+  color: #CBD5E1;
+}
+
+body.dark .forum-post-meta {
+  color: #94A3B8;
+}
+
+/* --------- BADGE & TAG --------- */
+body.dark .badge {
+  background: rgba(59, 130, 246, 0.2);
+  color: #60A5FA;
+}
+
+body.dark .badge.primary {
+  background: rgba(59, 130, 246, 0.2);
+  color: #60A5FA;
+}
+
+body.dark .badge.success {
+  background: rgba(52, 211, 153, 0.2);
+  color: #2DD4BF;
+}
+
+body.dark .badge.warning {
+  background: rgba(245, 158, 11, 0.2);
+  color: #FBBF24;
+}
+
+body.dark .badge.danger {
+  background: rgba(239, 68, 68, 0.2);
+  color: #F87171;
+}
+
+body.dark .tag {
+  background: rgba(59, 130, 246, 0.15);
+  color: #60A5FA;
+  border-color: rgba(59, 130, 246, 0.3);
+}
+
+body.dark .tag:hover {
+  background: rgba(59, 130, 246, 0.25);
+}
+
+/* --------- ALERTE & NOTIFICATION --------- */
+body.dark .alert {
+  background: rgba(59, 130, 246, 0.1);
+  border-color: rgba(59, 130, 246, 0.3);
+  color: #60A5FA;
+}
+
+body.dark .alert.success {
+  background: rgba(52, 211, 153, 0.1);
+  border-color: rgba(52, 211, 153, 0.3);
+  color: #2DD4BF;
+}
+
+body.dark .alert.warning {
+  background: rgba(245, 158, 11, 0.1);
+  border-color: rgba(245, 158, 11, 0.3);
+  color: #FBBF24;
+}
+
+body.dark .alert.danger {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.3);
+  color: #F87171;
+}
+
+/* --------- CHAT IA --------- */
+body.dark #ai-chat-modal {
+  background: #1E293B;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+}
+
+body.dark .ai-chat-header {
+  background: linear-gradient(135deg, #3B82F6 0%, #1E40AF 100%);
+  color: white;
+  border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+
+body.dark .ai-chat-messages {
+  background: #0F172A;
+}
+
+body.dark .ai-message {
+  color: #E2E8F0;
+}
+
+body.dark .ai-message.user {
+  background: rgba(59, 130, 246, 0.2);
+}
+
+body.dark .ai-message.system {
+  background: rgba(100, 116, 139, 0.2);
+  color: #CBD5E1;
+}
+
+body.dark .ai-chat-input {
+  background: #1E293B;
+  border-top-color: rgba(255, 255, 255, 0.1);
+}
+
+body.dark .ai-chat-input textarea {
+  background: #0F172A;
+  color: #E2E8F0;
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+body.dark .ai-chat-input textarea::placeholder {
+  color: #64748B;
+}
+
+/* --------- SCROLLBAR --------- */
+body.dark ::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+body.dark ::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.5);
+}
+
+body.dark ::-webkit-scrollbar-thumb {
+  background: rgba(59, 130, 246, 0.5);
+  border-radius: 5px;
+}
+
+body.dark ::-webkit-scrollbar-thumb:hover {
+  background: rgba(59, 130, 246, 0.7);
+}
+
+/* --------- TRANSITIONS GLOBALES --------- */
+body.dark,
+body.dark .topbar,
+body.dark .sidebar,
+body.dark .card,
+body.dark .button,
+body.dark input,
+body.dark textarea,
+body.dark .footer {
+  transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}

@@ -1,0 +1,297 @@
+{% extends 'donnelouis/base.html' %}
+{% load static %}
+
+{% block title %}Liens Utiles - L'Air du Vol®{% endblock %}
+
+{% block content %}
+<!-- Hero section -->
+<div class="liens-hero">
+  <h1>🔗 Liens Utiles</h1>
+  <p>Explorez notre sélection de ressources, sites spécialisés et références incontournables de l'aéronautique</p>
+</div>
+
+<!-- Section filtres et recherche -->
+<div class="filters-section">
+  <div class="filters-header">
+    <h2 class="filters-title">Filtrer & Rechercher</h2>
+    <div class="results-count" id="results-count">{{ liens.count }} liens trouvés</div>
+  </div>
+
+  <!-- Barre de recherche -->
+  <div class="search-bar-advanced">
+    <input type="text" id="search-input" placeholder="Rechercher un lien par titre, description...">
+    <button class="search-clear" id="search-clear">×</button>
+  </div>
+
+  <!-- Filtres par catégorie -->
+  <div class="category-filters">
+    <button class="category-btn active" data-category="all">
+      ✨ Tous les liens
+      <span class="category-badge">{{ liens.count }}</span>
+    </button>
+    <button class="category-btn" data-category="aviation">
+      ✈️ Aviation
+      <span class="category-badge">{{ stats.aviation }}</span>
+    </button>
+    <button class="category-btn" data-category="ressources">
+      📚 Ressources
+      <span class="category-badge">{{ stats.ressources }}</span>
+    </button>
+    <button class="category-btn" data-category="communaute">
+      👥 Communauté
+      <span class="category-badge">{{ stats.communaute }}</span>
+    </button>
+    <button class="category-btn" data-category="outils">
+      🛠️ Outils
+      <span class="category-badge">{{ stats.outils }}</span>
+    </button>
+  </div>
+
+  <!-- Contrôles de tri -->
+  <div class="view-controls">
+    <div class="sort-controls">
+      <span class="sort-label">Trier par:</span>
+      <button class="sort-btn active" data-sort="title">🔤 Alphabétique</button>
+      <button class="sort-btn" data-sort="category">📂 Catégorie</button>
+    </div>
+  </div>
+</div>
+
+<!-- Grille de liens -->
+<div class="liens-grid" id="liens-grid">
+  {% for lien in liens %}
+  <a href="{{ lien.url }}" target="_blank" class="lien-card" 
+     data-category="{{ lien.categorie }}" 
+     data-title="{{ lien.titre|lower }}">
+    <div class="lien-category-badge {{ lien.categorie }}">
+      {% if lien.categorie == 'aviation' %}✈️ Aviation
+      {% elif lien.categorie == 'ressources' %}📚 Ressources
+      {% elif lien.categorie == 'communaute' %}👥 Communauté
+      {% else %}🛠️ Outils{% endif %}
+    </div>
+    
+    {% if lien.image_principale %}
+    <img src="{{ lien.image_principale }}" alt="{{ lien.titre }}">
+    {% else %}
+    <div class="lien-placeholder">
+      <span class="placeholder-icon">🔗</span>
+    </div>
+    {% endif %}
+    
+    <div class="lien-content">
+      <h3>{{ lien.titre }}</h3>
+      <p>{{ lien.description|truncatewords:20 }}</p>
+      <div class="lien-footer">
+        <span class="lien-url">{{ lien.url|truncatewords:3 }}</span>
+        <span class="external-icon">↗️</span>
+      </div>
+    </div>
+  </a>
+  {% empty %}
+  <div class="no-results show">
+    <h3>Aucun lien trouvé</h3>
+    <p>Nous n'avons pas encore de liens. Revenez bientôt !</p>
+  </div>
+  {% endfor %}
+</div>
+
+<style>
+.liens-hero {
+  background: linear-gradient(135deg, #0A2463 0%, #247BA0 100%);
+  color: white;
+  padding: 60px 20px;
+  text-align: center;
+  margin-bottom: 40px;
+  border-radius: 10px;
+}
+
+.liens-hero h1 {
+  font-size: 2.5em;
+  margin: 0 0 10px 0;
+}
+
+.liens-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 30px;
+  margin-top: 30px;
+}
+
+.lien-card {
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+}
+
+.lien-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
+}
+
+.lien-card img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+}
+
+.lien-placeholder {
+  width: 100%;
+  height: 200px;
+  background: linear-gradient(135deg, #f0f0f0 0%, #e0e0e0 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.placeholder-icon {
+  font-size: 4em;
+  opacity: 0.5;
+}
+
+.lien-category-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.8em;
+  font-weight: bold;
+  color: white;
+}
+
+.lien-category-badge.aviation {
+  background-color: #0A2463;
+}
+
+.lien-category-badge.ressources {
+  background-color: #247BA0;
+}
+
+.lien-category-badge.communaute {
+  background-color: #E63946;
+}
+
+.lien-category-badge.outils {
+  background-color: #F77F00;
+}
+
+.lien-content {
+  padding: 20px;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.lien-content h3 {
+  margin: 0 0 10px 0;
+  color: #0A2463;
+  font-size: 1.2em;
+}
+
+.lien-content p {
+  color: #666;
+  margin: 0 0 15px 0;
+  font-size: 0.9em;
+  flex-grow: 1;
+}
+
+.lien-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.8em;
+  color: #999;
+  margin-top: auto;
+}
+
+.lien-url {
+  word-break: break-word;
+  max-width: 85%;
+}
+
+.external-icon {
+  font-size: 1.1em;
+}
+</style>
+
+<script>
+// Filtrage par catégorie
+document.querySelectorAll('.category-btn').forEach(btn => {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+    this.classList.add('active');
+    
+    const category = this.dataset.category;
+    const cards = document.querySelectorAll('.lien-card');
+    let visibleCount = 0;
+    
+    cards.forEach(card => {
+      if (category === 'all' || card.dataset.category === category) {
+        card.style.display = '';
+        visibleCount++;
+      } else {
+        card.style.display = 'none';
+      }
+    });
+    
+    document.getElementById('results-count').textContent = `${visibleCount} lien(s) trouvé(s)`;
+  });
+});
+
+// Recherche
+const searchInput = document.getElementById('search-input');
+const searchClear = document.getElementById('search-clear');
+
+searchInput.addEventListener('input', function() {
+  const query = this.value.toLowerCase();
+  const cards = document.querySelectorAll('.lien-card');
+  let visibleCount = 0;
+  
+  cards.forEach(card => {
+    const title = card.dataset.title;
+    if (title.includes(query)) {
+      card.style.display = '';
+      visibleCount++;
+    } else {
+      card.style.display = 'none';
+    }
+  });
+  
+  document.getElementById('results-count').textContent = `${visibleCount} lien(s) trouvé(s)`;
+});
+
+searchClear.addEventListener('click', function() {
+  searchInput.value = '';
+  searchInput.dispatchEvent(new Event('input'));
+});
+
+// Tri
+document.querySelectorAll('.sort-btn').forEach(btn => {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
+    this.classList.add('active');
+    
+    const sortType = this.dataset.sort;
+    const grid = document.getElementById('liens-grid');
+    const cards = Array.from(grid.querySelectorAll('.lien-card'));
+    
+    cards.sort((a, b) => {
+      if (sortType === 'title') {
+        return a.dataset.title.localeCompare(b.dataset.title);
+      } else if (sortType === 'category') {
+        return a.dataset.category.localeCompare(b.dataset.category);
+      }
+    });
+    
+    grid.innerHTML = '';
+    cards.forEach(card => grid.appendChild(card));
+  });
+});
+</script>
+{% endblock %}
