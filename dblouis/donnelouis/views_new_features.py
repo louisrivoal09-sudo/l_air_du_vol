@@ -12,7 +12,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
-from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
 import json
 from .models import (
     Article, ArticleComment, ArticleReport, FavoriteArticle,
@@ -404,16 +404,43 @@ def create_auth_notifications(request):
 
 @login_required
 @require_http_methods(["POST"])
-def toggle_article_like(request, article_id):
-    """Ajouter/supprimer un like sur un article"""
+@require_http_methods(["GET"])
+def get_article_likes(request, article_id):
+    """Récupérer les counts de likes/dislikes et le vote actuel"""
     try:
         from .models import Article, ArticleLike
         
         article = Article.objects.get(id=article_id)
-        type_vote = int(request.POST.get('type_vote', 1))
+        likes_count = ArticleLike.objects.filter(article=article, type_vote=1).count()
+        dislikes_count = ArticleLike.objects.filter(article=article, type_vote=-1).count()
         
-        if type_vote not in [1, -1]:
-            return JsonResponse({'error': 'Type de vote invalide'}, status=400)
+        user_vote = None
+        if request.user.is_authenticated:
+            existing = ArticleLike.objects.filter(article=article, utilisateur=request.user).first()
+            if existing:
+                user_vote = existing.type_vote
+        
+        return JsonResponse({
+            'success': True,
+            'likes_count': likes_count,
+            'dislikes_count': dislikes_count,
+            'user_vote': user_vote,
+        })
+    except Article.DoesNotExist:
+        return JsonResponse({'error': 'Article non trouvé'}, status=404)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+@require_http_methods(["POST"])
+def toggle_article_like(request, article_id):
+    """Toggle like sur un article"""
+    if not request.user.is_authenticated:
+        return JsonResponse({'error': 'Non authentifié'}, status=401)
+    
+    try:
+        from .models import Article, ArticleLike
+        
+        article = Article.objects.get(id=article_id)
         
         existing_like = ArticleLike.objects.filter(
             article=article,
@@ -421,33 +448,92 @@ def toggle_article_like(request, article_id):
         ).first()
         
         if existing_like:
-            if existing_like.type_vote == type_vote:
+            if existing_like.type_vote == 1:
+                # Si c'était un like, le supprimer
                 existing_like.delete()
-                return JsonResponse({
-                    'success': True,
-                    'action': 'removed',
-                    'likes': ArticleLike.objects.filter(article=article, type_vote=1).count(),
-                    'dislikes': ArticleLike.objects.filter(article=article, type_vote=-1).count(),
-                })
             else:
-                existing_like.type_vote = type_vote
+                # Si c'était un dislike, le changer en like
+                existing_like.type_vote = 1
                 existing_like.save()
         else:
+            # Créer un nouveau like
             ArticleLike.objects.create(
                 article=article,
                 utilisateur=request.user,
-                type_vote=type_vote
+                type_vote=1
             )
         
         likes = ArticleLike.objects.filter(article=article, type_vote=1).count()
         dislikes = ArticleLike.objects.filter(article=article, type_vote=-1).count()
         
+        # Récupérer le vote actuel de l'utilisateur
+        user_vote = None
+        user_vote_obj = ArticleLike.objects.filter(article=article, utilisateur=request.user).first()
+        if user_vote_obj:
+            user_vote = user_vote_obj.type_vote
+        
         return JsonResponse({
             'success': True,
-            'action': 'added',
             'likes': likes,
             'dislikes': dislikes,
+            'user_vote': user_vote,
         })
+    except Article.DoesNotExist:
+        return JsonResponse({'error': 'Article non trouvé'}, status=404)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+@require_http_methods(["POST"])
+def toggle_article_dislike(request, article_id):
+    """Toggle dislike sur un article"""
+    if not request.user.is_authenticated:
+        return JsonResponse({'error': 'Non authentifié'}, status=401)
+    
+    try:
+        from .models import Article, ArticleLike
+        
+        article = Article.objects.get(id=article_id)
+        
+        existing_like = ArticleLike.objects.filter(
+            article=article,
+            utilisateur=request.user
+        ).first()
+        
+        if existing_like:
+            if existing_like.type_vote == -1:
+                # Si c'était un dislike, le supprimer
+                existing_like.delete()
+            else:
+                # Si c'était un like, le changer en dislike
+                existing_like.type_vote = -1
+                existing_like.save()
+        else:
+            # Créer un nouveau dislike
+            ArticleLike.objects.create(
+                article=article,
+                utilisateur=request.user,
+                type_vote=-1
+            )
+        
+        likes = ArticleLike.objects.filter(article=article, type_vote=1).count()
+        dislikes = ArticleLike.objects.filter(article=article, type_vote=-1).count()
+        
+        # Récupérer le vote actuel de l'utilisateur
+        user_vote = None
+        user_vote_obj = ArticleLike.objects.filter(article=article, utilisateur=request.user).first()
+        if user_vote_obj:
+            user_vote = user_vote_obj.type_vote
+        
+        return JsonResponse({
+            'success': True,
+            'likes': likes,
+            'dislikes': dislikes,
+            'user_vote': user_vote,
+        })
+    except Article.DoesNotExist:
+        return JsonResponse({'error': 'Article non trouvé'}, status=404)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
     except Article.DoesNotExist:
         return JsonResponse({'error': 'Article non trouvé'}, status=404)
     except Exception as e:

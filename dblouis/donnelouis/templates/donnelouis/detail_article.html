@@ -23,6 +23,16 @@
       <button class="share-article-btn" onclick="shareArticle()">
         📤 Partager
       </button>
+      
+      <!-- Like/Dislike Buttons -->
+      <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+        <button id="like-btn" class="like-btn" onclick="toggleArticleLike()" style="padding: 0.75rem 1.5rem; background-color: #10B981; color: white; border: none; border-radius: var(--radius-md); cursor: pointer; font-size: 1rem; transition: background-color 0.3s;">
+          👍 <span id="like-count">0</span> J'aime
+        </button>
+        <button id="dislike-btn" class="dislike-btn" onclick="toggleArticleDislike()" style="padding: 0.75rem 1.5rem; background-color: #EF4444; color: white; border: none; border-radius: var(--radius-md); cursor: pointer; font-size: 1rem; transition: background-color 0.3s;">
+          👎 <span id="dislike-count">0</span> J'aime pas
+        </button>
+      </div>
     </div>
     
     <!-- Résumé -->
@@ -104,68 +114,6 @@
         ← Retour aux articles
       </a>
     </div>
-    
-    <!-- SECTION COMMENTAIRES ET SIGNALEMENTS -->
-    <div class="comments-section" style="margin-top: 3rem; padding-top: 2rem; border-top: 2px solid var(--border-light);">
-      <h3 style="margin-top: 0;">Ajouter un commentaire</h3>
-      
-      <!-- Formulaire de commentaire -->
-      <form id="comment-form" style="margin: 2rem 0;">
-        {% csrf_token %}
-        <div style="margin-bottom: 1rem;">
-          <input type="text" id="comment-auteur" name="auteur" placeholder="Votre nom" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-light); border-radius: var(--radius-md); font-family: inherit;">
-        </div>
-        <div style="margin-bottom: 1rem;">
-          <input type="email" id="comment-email" name="email" placeholder="Votre email (optionnel)" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-light); border-radius: var(--radius-md); font-family: inherit;">
-        </div>
-        <div style="margin-bottom: 1rem;">
-          <textarea id="comment-content" name="contenu" placeholder="Votre commentaire..." rows="4" required style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-light); border-radius: var(--radius-md); font-family: inherit; resize: vertical;"></textarea>
-        </div>
-        <button type="submit" style="padding: 0.75rem 1.5rem; background-color: var(--primary); color: white; border: none; border-radius: var(--radius-md); cursor: pointer; font-size: 1rem;">
-          Poster le commentaire
-        </button>
-        <button type="button" onclick="toggleReportForm()" style="margin-left: 1rem; padding: 0.75rem 1.5rem; background-color: #9CA3AF; color: white; border: none; border-radius: var(--radius-md); cursor: pointer; font-size: 1rem;">
-          🚩 Signaler l'article
-        </button>
-      </form>
-      
-      <!-- Formulaire de signalement (caché) -->
-      <form id="article-report-form" style="display: none; margin: 2rem 0; padding: 1.5rem; background-color: #FEE2E2; border-radius: var(--radius-lg); border-left: 4px solid #EF4444;">
-        {% csrf_token %}
-        <h4>Signaler un problème</h4>
-        <div style="margin-bottom: 1rem;">
-          <label for="report-reason" style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Raison du signalement:</label>
-          <select id="report-reason" name="raison" required style="width: 100%; padding: 0.75rem; border: 1px solid #DCA5A5; border-radius: var(--radius-md); font-family: inherit;">
-            <option value="">-- Sélectionner une raison --</option>
-            <option value="contenu_inapproprie">Contenu inapproprié</option>
-            <option value="desinformation">Désinformation</option>
-            <option value="spam">Spam</option>
-            <option value="autre">Autre</option>
-          </select>
-        </div>
-        <div style="margin-bottom: 1rem;">
-          <label for="report-description" style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Description:</label>
-          <textarea id="report-description" name="description" rows="3" style="width: 100%; padding: 0.75rem; border: 1px solid #DCA5A5; border-radius: var(--radius-md); font-family: inherit; resize: vertical;"></textarea>
-        </div>
-        <button type="submit" style="padding: 0.75rem 1.5rem; background-color: #EF4444; color: white; border: none; border-radius: var(--radius-md); cursor: pointer; font-size: 1rem;">
-          Envoyer le signalement
-        </button>
-        <button type="button" onclick="toggleReportForm()" style="margin-left: 1rem; padding: 0.75rem 1.5rem; background-color: #9CA3AF; color: white; border: none; border-radius: var(--radius-md); cursor: pointer; font-size: 1rem;">
-          Annuler
-        </button>
-      </form>
-      
-      <!-- Liste des commentaires -->
-      <div style="margin-top: 2rem;">
-        <h3>Commentaires ({{ article.comments.count }})</h3>
-        <div id="comments-list" style="display: flex; flex-direction: column; gap: 1rem;">
-          <!-- Les commentaires seront chargés ici par JavaScript -->
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
 <!-- Lightbox -->
 <div class="lightbox" id="lightbox">
   <div class="lightbox-toolbar">
@@ -420,7 +368,80 @@ document.getElementById('article-report-form').addEventListener('submit', async 
   }
 });
 
+// Charger les likes au démarrage
+async function loadLikeCounts() {
+  const articleId = document.querySelector('[data-article-id]').dataset.articleId;
+  try {
+    const response = await fetch(`/api/article/${articleId}/likes/`);
+    if (response.ok) {
+      const data = await response.json();
+      document.getElementById('like-count').textContent = data.likes_count || 0;
+      document.getElementById('dislike-count').textContent = data.dislikes_count || 0;
+      
+      // Mettre à jour le style des boutons selon le vote actuel
+      if (data.user_vote === 1) {
+        document.getElementById('like-btn').style.backgroundColor = '#059669';
+        document.getElementById('dislike-btn').style.backgroundColor = '#DC2626';
+      } else if (data.user_vote === -1) {
+        document.getElementById('like-btn').style.backgroundColor = '#10B981';
+        document.getElementById('dislike-btn').style.backgroundColor = '#991B1B';
+      }
+    }
+  } catch (error) {
+    console.error('Erreur chargement likes:', error);
+  }
+}
+
+// Toggle Like
+async function toggleArticleLike() {
+  const articleId = document.querySelector('[data-article-id]').dataset.articleId;
+  try {
+    const response = await fetch(`/api/article/${articleId}/like/toggle/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+      }
+    });
+    
+    if (response.ok) {
+      loadLikeCounts();
+    } else {
+      alert('✗ Erreur lors du vote');
+    }
+  } catch (error) {
+    console.error('Erreur like:', error);
+    alert('✗ Erreur lors du vote');
+  }
+}
+
+// Toggle Dislike
+async function toggleArticleDislike() {
+  const articleId = document.querySelector('[data-article-id]').dataset.articleId;
+  try {
+    const response = await fetch(`/api/article/${articleId}/dislike/toggle/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+      }
+    });
+    
+    if (response.ok) {
+      loadLikeCounts();
+    } else {
+      alert('✗ Erreur lors du vote');
+    }
+  } catch (error) {
+    console.error('Erreur dislike:', error);
+    alert('✗ Erreur lors du vote');
+  }
+}
+
 // Charger les commentaires au chargement
-document.addEventListener('DOMContentLoaded', loadComments);
+document.addEventListener('DOMContentLoaded', () => {
+  loadComments();
+  loadLikeCounts();
+});
 </script>
 {% endblock %}

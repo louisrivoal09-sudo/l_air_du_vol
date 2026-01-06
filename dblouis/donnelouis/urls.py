@@ -57,7 +57,9 @@ urlpatterns = [
     path('api/notifications/marquer-toutes-lues/', views_new_features.marquer_toutes_lues, name='marquer_toutes_lues'),
     
     # Likes/Dislikes - Articles
+    path('api/article/<int:article_id>/likes/', views_new_features.get_article_likes, name='get_article_likes'),
     path('api/article/<int:article_id>/like/toggle/', views_new_features.toggle_article_like, name='toggle_article_like'),
+    path('api/article/<int:article_id>/dislike/toggle/', views_new_features.toggle_article_dislike, name='toggle_article_dislike'),
     
     # Likes/Dislikes - Médias
     path('api/media/<int:media_id>/like/toggle/', views_new_features.toggle_media_like, name='toggle_media_like'),
