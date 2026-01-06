@@ -98,82 +98,71 @@
     </div>
     {% endif %}
     
+    <!-- Bouton retour -->
+    <div style="margin-top: 2rem; margin-bottom: 2rem;">
+      <a href="{% url 'liste_articles' %}" class="btn btn-primary" style="display: inline-block; padding: 0.75rem 1.5rem; background-color: var(--primary); color: white; text-decoration: none; border-radius: var(--radius-lg); transition: background-color 0.3s;">
+        ← Retour aux articles
+      </a>
+    </div>
+    
     <!-- SECTION COMMENTAIRES ET SIGNALEMENTS -->
-    <div class="comments-section" style="margin-top: 4rem; padding-top: 3rem; border-top: 2px solid #E5E7EB;">
-      <h2 style="margin-bottom: 2rem;">💭 Commentaires</h2>
+    <div class="comments-section" style="margin-top: 3rem; padding-top: 2rem; border-top: 2px solid var(--border-light);">
+      <h3 style="margin-top: 0;">Ajouter un commentaire</h3>
       
-      <!-- Formulaire d'ajout de commentaire -->
-      <div class="add-comment-form" style="background: var(--bg-light); padding: 2rem; border-radius: var(--radius-xl); margin-bottom: 2rem;">
-        <h3 style="margin-bottom: 1rem;">Ajouter un commentaire</h3>
-        
-        <form id="comment-form" style="display: flex; flex-direction: column; gap: 1rem;">
-          {% csrf_token %}
-          
-          {% if not user.is_authenticated %}
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-            <input type="text" id="comment-auteur" placeholder="Votre nom (optionnel)" style="padding: 0.75rem; border: 1px solid #D1D5DB; border-radius: var(--radius); font-size: 0.95rem;">
-            <input type="email" id="comment-email" placeholder="Votre email (optionnel)" style="padding: 0.75rem; border: 1px solid #D1D5DB; border-radius: var(--radius); font-size: 0.95rem;">
-          </div>
-          {% endif %}
-          
-          <textarea 
-            id="comment-content" 
-            placeholder="Votre commentaire..." 
-            rows="4" 
-            required
-            style="padding: 0.75rem; border: 1px solid #D1D5DB; border-radius: var(--radius); font-size: 0.95rem; font-family: inherit;">
-          </textarea>
-          
-          <div style="display: flex; gap: 1rem; align-items: center;">
-            <button type="submit" class="btn" style="background: linear-gradient(135deg, #3B82F6 0%, #1E40AF 100%); flex-grow: 1;">
-              ✓ Publier le commentaire
-            </button>
-            <button type="button" class="btn" style="background: #EF4444;" onclick="toggleReportForm()" title="Signaler ce contenu">
-              🚩 Signaler
-            </button>
-          </div>
-        </form>
-      </div>
+      <!-- Formulaire de commentaire -->
+      <form id="comment-form" style="margin: 2rem 0;">
+        {% csrf_token %}
+        <div style="margin-bottom: 1rem;">
+          <input type="text" id="comment-auteur" name="auteur" placeholder="Votre nom" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-light); border-radius: var(--radius-md); font-family: inherit;">
+        </div>
+        <div style="margin-bottom: 1rem;">
+          <input type="email" id="comment-email" name="email" placeholder="Votre email (optionnel)" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-light); border-radius: var(--radius-md); font-family: inherit;">
+        </div>
+        <div style="margin-bottom: 1rem;">
+          <textarea id="comment-content" name="contenu" placeholder="Votre commentaire..." rows="4" required style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-light); border-radius: var(--radius-md); font-family: inherit; resize: vertical;"></textarea>
+        </div>
+        <button type="submit" style="padding: 0.75rem 1.5rem; background-color: var(--primary); color: white; border: none; border-radius: var(--radius-md); cursor: pointer; font-size: 1rem;">
+          Poster le commentaire
+        </button>
+        <button type="button" onclick="toggleReportForm()" style="margin-left: 1rem; padding: 0.75rem 1.5rem; background-color: #9CA3AF; color: white; border: none; border-radius: var(--radius-md); cursor: pointer; font-size: 1rem;">
+          🚩 Signaler l'article
+        </button>
+      </form>
       
-      <!-- Formulaire de signalement (caché par défaut) -->
-      <div id="report-form" style="background: #FEE2E2; padding: 2rem; border-radius: var(--radius-xl); margin-bottom: 2rem; display: none; border: 2px solid #FCA5A5;">
-        <h3 style="margin-bottom: 1rem; color: #991B1B;">🚩 Signaler cet article</h3>
-        <form id="article-report-form" style="display: flex; flex-direction: column; gap: 1rem;">
-          {% csrf_token %}
-          
-          <select id="report-reason" required style="padding: 0.75rem; border: 1px solid #D1D5DB; border-radius: var(--radius);">
+      <!-- Formulaire de signalement (caché) -->
+      <form id="article-report-form" style="display: none; margin: 2rem 0; padding: 1.5rem; background-color: #FEE2E2; border-radius: var(--radius-lg); border-left: 4px solid #EF4444;">
+        {% csrf_token %}
+        <h4>Signaler un problème</h4>
+        <div style="margin-bottom: 1rem;">
+          <label for="report-reason" style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Raison du signalement:</label>
+          <select id="report-reason" name="raison" required style="width: 100%; padding: 0.75rem; border: 1px solid #DCA5A5; border-radius: var(--radius-md); font-family: inherit;">
             <option value="">-- Sélectionner une raison --</option>
+            <option value="contenu_inapproprie">Contenu inapproprié</option>
+            <option value="desinformation">Désinformation</option>
             <option value="spam">Spam</option>
-            <option value="offensant">Contenu offensant</option>
-            <option value="inexact">Information inexacte</option>
-            <option value="publicite">Publicité non autorisée</option>
             <option value="autre">Autre</option>
           </select>
-          
-          <textarea 
-            id="report-description" 
-            placeholder="Détails du signalement (optionnel)" 
-            rows="3"
-            style="padding: 0.75rem; border: 1px solid #D1D5DB; border-radius: var(--radius); font-size: 0.95rem; font-family: inherit;">
-          </textarea>
-          
-          <div style="display: flex; gap: 1rem;">
-            <button type="submit" class="btn" style="background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%); flex-grow: 1;">
-              Envoyer le signalement
-            </button>
-            <button type="button" class="btn" style="background: #9CA3AF;" onclick="toggleReportForm()">
-              Annuler
-            </button>
-          </div>
-        </form>
-      </div>
+        </div>
+        <div style="margin-bottom: 1rem;">
+          <label for="report-description" style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Description:</label>
+          <textarea id="report-description" name="description" rows="3" style="width: 100%; padding: 0.75rem; border: 1px solid #DCA5A5; border-radius: var(--radius-md); font-family: inherit; resize: vertical;"></textarea>
+        </div>
+        <button type="submit" style="padding: 0.75rem 1.5rem; background-color: #EF4444; color: white; border: none; border-radius: var(--radius-md); cursor: pointer; font-size: 1rem;">
+          Envoyer le signalement
+        </button>
+        <button type="button" onclick="toggleReportForm()" style="margin-left: 1rem; padding: 0.75rem 1.5rem; background-color: #9CA3AF; color: white; border: none; border-radius: var(--radius-md); cursor: pointer; font-size: 1rem;">
+          Annuler
+        </button>
+      </form>
       
       <!-- Liste des commentaires -->
-      <div id="comments-list" style="display: flex; flex-direction: column; gap: 1.5rem;">
-        <p style="text-align: center; color: var(--text-gray);">Chargement des commentaires...</p>
+      <div style="margin-top: 2rem;">
+        <h3>Commentaires ({{ article.comments.count }})</h3>
+        <div id="comments-list" style="display: flex; flex-direction: column; gap: 1rem;">
+          <!-- Les commentaires seront chargés ici par JavaScript -->
+        </div>
       </div>
     </div>
-
   </div>
 </div>
 
