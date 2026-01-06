@@ -67,12 +67,18 @@
        data-date="{{ article.date_publication|date:'Y-m-d' }}" 
        data-title="{{ article.titre|lower }}"
        data-url="{% url 'detail_article' article.slug %}"
-       style="cursor: pointer;"
-       onclick="if(this.dataset.url) window.location.href = this.dataset.url;">
+       data-id="{{ article.id }}"
+       style="cursor: pointer;">
     <div class="article-category-badge {{ article.categorie }}">
       {% if article.categorie == 'aviation' %}Aviation civile
       {% elif article.categorie == 'avions' %}Grands avions
       {% else %}Opérations militaires{% endif %}
+    </div>
+    
+    <!-- Compteurs like/dislike -->
+    <div class="like-dislike-bar" style="background: #f0f0f0; padding: 0.5rem; display: flex; gap: 1rem; justify-content: center; font-size: 0.9rem; border-bottom: 1px solid #e0e0e0;">
+      <span class="likes-count">👍 {{ article.likes.all|length }}</span>
+      <span class="dislikes-count">👎 {{ article.likes.all|dictsort:"type_vote"|length }}</span>
     </div>
     
     {% if article.image_principale %}
@@ -81,7 +87,7 @@
     <img src="https://via.placeholder.com/400x240/0A2463/FFFFFF?text={{ article.titre|urlencode }}" alt="{{ article.titre }}">
     {% endif %}
     
-    <div class="card-content">
+    <div class="card-content" onclick="if(this.closest('.article-card').dataset.url) window.location.href = this.closest('.article-card').dataset.url;">
       <h3>{{ article.titre }}</h3>
       <p>{{ article.resume|truncatewords:30 }}</p>
       <span class="btn read-more">Lire plus</span>

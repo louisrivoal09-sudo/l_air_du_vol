@@ -62,12 +62,19 @@
   {% for lien in liens %}
   <a href="{{ lien.url }}" target="_blank" class="lien-card" 
      data-category="{{ lien.categorie }}" 
-     data-title="{{ lien.titre|lower }}">
+     data-title="{{ lien.titre|lower }}"
+     data-id="{{ lien.id }}">
     <div class="lien-category-badge {{ lien.categorie }}">
       {% if lien.categorie == 'aviation' %}✈️ Aviation
       {% elif lien.categorie == 'ressources' %}📚 Ressources
       {% elif lien.categorie == 'communaute' %}👥 Communauté
       {% else %}🛠️ Outils{% endif %}
+    </div>
+    
+    <!-- Compteurs like/dislike (Non implémentés pour liens) -->
+    <div class="like-dislike-bar" style="background: #f0f0f0; padding: 0.5rem; display: flex; gap: 1rem; justify-content: center; font-size: 0.9rem; border-bottom: 1px solid #e0e0e0;">
+      <span class="likes-count">👍 0</span>
+      <span class="dislikes-count">👎 0</span>
     </div>
     
     {% if lien.image_principale %}

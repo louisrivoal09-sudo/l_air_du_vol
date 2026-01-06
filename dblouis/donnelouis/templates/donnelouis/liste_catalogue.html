@@ -61,10 +61,15 @@
        data-date="{{ avion.date_creation|date:'Y-m-d' }}" 
        data-title="{{ avion.nom|lower }}"
        data-url="{% url 'detail_catalogue' avion.slug %}"
-       style="cursor: pointer;"
-       onclick="if(this.dataset.url) window.location.href = this.dataset.url;">
+       data-id="{{ avion.id }}">
     <div class="article-category-badge">
       {{ avion.type_avion }}
+    </div>
+    
+    <!-- Compteurs like/dislike (Non implémentés pour avions) -->
+    <div class="like-dislike-bar" style="background: #f0f0f0; padding: 0.5rem; display: flex; gap: 1rem; justify-content: center; font-size: 0.9rem; border-bottom: 1px solid #e0e0e0;">
+      <span class="likes-count">👍 0</span>
+      <span class="dislikes-count">👎 0</span>
     </div>
     
     {% if avion.image_principale %}
@@ -73,7 +78,7 @@
     <img src="https://via.placeholder.com/400x240/0A2463/FFFFFF?text={{ avion.nom|urlencode }}" alt="{{ avion.nom }}">
     {% endif %}
     
-    <div class="card-content">
+    <div class="card-content" style="cursor: pointer;" onclick="if(this.closest('.article-card').dataset.url) window.location.href = this.closest('.article-card').dataset.url;">
       <h3>{{ avion.nom }}</h3>
       <p><strong>{{ avion.constructeur }}</strong> • {{ avion.type_avion }}</p>
       {% if avion.annee_premier_vol %}

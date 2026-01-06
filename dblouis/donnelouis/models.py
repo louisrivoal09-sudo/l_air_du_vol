@@ -485,3 +485,90 @@ class CommentNotification(models.Model):
     def __str__(self):
         return f"Notif: Réponse à commentaire"
 
+
+# ============================================================================
+# SYSTÈME DE LIKE/DISLIKE
+# ============================================================================
+
+class ArticleLike(models.Model):
+    """Likes/Dislikes sur les articles"""
+    VOTE_CHOICES = [
+        (1, 'J\'aime'),
+        (-1, 'J\'aime pas'),
+    ]
+    
+    article = models.ForeignKey(Article, on_delete=models.CASCADE, related_name='likes')
+    utilisateur = models.ForeignKey(User, on_delete=models.CASCADE)
+    type_vote = models.IntegerField(choices=VOTE_CHOICES, default=1)
+    date_vote = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        unique_together = ('article', 'utilisateur')
+        verbose_name = 'Like article'
+        verbose_name_plural = 'Likes articles'
+    
+    def __str__(self):
+        return f"{self.utilisateur.username} - {self.article.titre} ({self.get_type_vote_display()})"
+
+
+class ForumSujetLike(models.Model):
+    """Likes/Dislikes sur les sujets du forum"""
+    VOTE_CHOICES = [
+        (1, 'J\'aime'),
+        (-1, 'J\'aime pas'),
+    ]
+    
+    sujet = models.ForeignKey(ForumSujet, on_delete=models.CASCADE, related_name='likes')
+    utilisateur = models.ForeignKey(User, on_delete=models.CASCADE)
+    type_vote = models.IntegerField(choices=VOTE_CHOICES, default=1)
+    date_vote = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        unique_together = ('sujet', 'utilisateur')
+        verbose_name = 'Like sujet forum'
+        verbose_name_plural = 'Likes sujets forum'
+    
+    def __str__(self):
+        return f"{self.utilisateur.username} - {self.sujet.titre} ({self.get_type_vote_display()})"
+
+
+class ForumReponseLike(models.Model):
+    """Likes/Dislikes sur les réponses du forum"""
+    VOTE_CHOICES = [
+        (1, 'J\'aime'),
+        (-1, 'J\'aime pas'),
+    ]
+    
+    reponse = models.ForeignKey(ForumReponse, on_delete=models.CASCADE, related_name='likes')
+    utilisateur = models.ForeignKey(User, on_delete=models.CASCADE)
+    type_vote = models.IntegerField(choices=VOTE_CHOICES, default=1)
+    date_vote = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        unique_together = ('reponse', 'utilisateur')
+        verbose_name = 'Like réponse forum'
+        verbose_name_plural = 'Likes réponses forum'
+    
+    def __str__(self):
+        return f"{self.utilisateur.username} - Réponse #{self.reponse.id} ({self.get_type_vote_display()})"
+
+
+class MediaLike(models.Model):
+    """Likes/Dislikes sur les médias"""
+    VOTE_CHOICES = [
+        (1, 'J\'aime'),
+        (-1, 'J\'aime pas'),
+    ]
+    
+    media = models.ForeignKey(Media, on_delete=models.CASCADE, related_name='likes')
+    utilisateur = models.ForeignKey(User, on_delete=models.CASCADE)
+    type_vote = models.IntegerField(choices=VOTE_CHOICES, default=1)
+    date_vote = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        unique_together = ('media', 'utilisateur')
+        verbose_name = 'Like média'
+        verbose_name_plural = 'Likes médias'
+    
+    def __str__(self):
+        return f"{self.utilisateur.username} - {self.media.titre} ({self.get_type_vote_display()})"

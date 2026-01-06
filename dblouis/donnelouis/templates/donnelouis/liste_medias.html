@@ -62,11 +62,16 @@
        data-date="{{ media.date_publication|date:'Y-m-d' }}" 
        data-title="{{ media.titre|lower }}"
        data-url="{% url 'detail_media' media.slug %}"
-       style="cursor: pointer;"
-       onclick="if(this.dataset.url) window.location.href = this.dataset.url;">
+       data-id="{{ media.id }}">
     <div class="media-type-badge {{ media.type_media }}">
       {% if media.type_media == 'video' %}📹 Vidéo
       {% else %}🎙️ Podcast{% endif %}
+    </div>
+    
+    <!-- Compteurs like/dislike -->
+    <div class="like-dislike-bar" style="background: #f0f0f0; padding: 0.5rem; display: flex; gap: 1rem; justify-content: center; font-size: 0.9rem; border-bottom: 1px solid #e0e0e0;">
+      <span class="likes-count">👍 {{ media.likes.all|length }}</span>
+      <span class="dislikes-count">👎 {{ media.likes.all|dictsort:"type_vote"|length }}</span>
     </div>
     
     {% if media.image_principale %}
@@ -75,7 +80,7 @@
     <img src="https://via.placeholder.com/400x240/0A2463/FFFFFF?text={{ media.titre|urlencode }}" alt="{{ media.titre }}">
     {% endif %}
     
-    <div class="card-content">
+    <div class="card-content" style="cursor: pointer;" onclick="if(this.closest('.media-card').dataset.url) window.location.href = this.closest('.media-card').dataset.url;">
       <h3>{{ media.titre }}</h3>
       <p>{{ media.description|truncatewords:20 }}</p>
       <span class="btn read-more">Visionner</span>

@@ -397,3 +397,208 @@ def create_auth_notifications(request):
             message='Créez un compte pour commenter, ajouter des articles et accéder aux forums!',
         )
 
+
+# ============================================================================
+# SYSTÈME DE LIKE/DISLIKE
+# ============================================================================
+
+@login_required
+@require_http_methods(["POST"])
+def toggle_article_like(request, article_id):
+    """Ajouter/supprimer un like sur un article"""
+    try:
+        from .models import Article, ArticleLike
+        
+        article = Article.objects.get(id=article_id)
+        type_vote = int(request.POST.get('type_vote', 1))
+        
+        if type_vote not in [1, -1]:
+            return JsonResponse({'error': 'Type de vote invalide'}, status=400)
+        
+        existing_like = ArticleLike.objects.filter(
+            article=article,
+            utilisateur=request.user
+        ).first()
+        
+        if existing_like:
+            if existing_like.type_vote == type_vote:
+                existing_like.delete()
+                return JsonResponse({
+                    'success': True,
+                    'action': 'removed',
+                    'likes': ArticleLike.objects.filter(article=article, type_vote=1).count(),
+                    'dislikes': ArticleLike.objects.filter(article=article, type_vote=-1).count(),
+                })
+            else:
+                existing_like.type_vote = type_vote
+                existing_like.save()
+        else:
+            ArticleLike.objects.create(
+                article=article,
+                utilisateur=request.user,
+                type_vote=type_vote
+            )
+        
+        likes = ArticleLike.objects.filter(article=article, type_vote=1).count()
+        dislikes = ArticleLike.objects.filter(article=article, type_vote=-1).count()
+        
+        return JsonResponse({
+            'success': True,
+            'action': 'added',
+            'likes': likes,
+            'dislikes': dislikes,
+        })
+    except Article.DoesNotExist:
+        return JsonResponse({'error': 'Article non trouvé'}, status=404)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
+
+
+@login_required
+@require_http_methods(["POST"])
+def toggle_media_like(request, media_id):
+    """Ajouter/supprimer un like sur un média"""
+    try:
+        from .models import Media, MediaLike
+        
+        media = Media.objects.get(id=media_id)
+        type_vote = int(request.POST.get('type_vote', 1))
+        
+        if type_vote not in [1, -1]:
+            return JsonResponse({'error': 'Type de vote invalide'}, status=400)
+        
+        existing_like = MediaLike.objects.filter(
+            media=media,
+            utilisateur=request.user
+        ).first()
+        
+        if existing_like:
+            if existing_like.type_vote == type_vote:
+                existing_like.delete()
+                return JsonResponse({
+                    'success': True,
+                    'action': 'removed',
+                    'likes': MediaLike.objects.filter(media=media, type_vote=1).count(),
+                    'dislikes': MediaLike.objects.filter(media=media, type_vote=-1).count(),
+                })
+            else:
+                existing_like.type_vote = type_vote
+                existing_like.save()
+        else:
+            MediaLike.objects.create(
+                media=media,
+                utilisateur=request.user,
+                type_vote=type_vote
+            )
+        
+        likes = MediaLike.objects.filter(media=media, type_vote=1).count()
+        dislikes = MediaLike.objects.filter(media=media, type_vote=-1).count()
+        
+        return JsonResponse({
+            'success': True,
+            'action': 'added',
+            'likes': likes,
+            'dislikes': dislikes,
+        })
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
+
+
+@login_required
+@require_http_methods(["POST"])
+def toggle_forum_sujet_like(request, sujet_id):
+    """Ajouter/supprimer un like sur un sujet de forum"""
+    try:
+        from .models import ForumSujet, ForumSujetLike
+        
+        sujet = ForumSujet.objects.get(id=sujet_id)
+        type_vote = int(request.POST.get('type_vote', 1))
+        
+        if type_vote not in [1, -1]:
+            return JsonResponse({'error': 'Type de vote invalide'}, status=400)
+        
+        existing_like = ForumSujetLike.objects.filter(
+            sujet=sujet,
+            utilisateur=request.user
+        ).first()
+        
+        if existing_like:
+            if existing_like.type_vote == type_vote:
+                existing_like.delete()
+                return JsonResponse({
+                    'success': True,
+                    'action': 'removed',
+                    'likes': ForumSujetLike.objects.filter(sujet=sujet, type_vote=1).count(),
+                    'dislikes': ForumSujetLike.objects.filter(sujet=sujet, type_vote=-1).count(),
+                })
+            else:
+                existing_like.type_vote = type_vote
+                existing_like.save()
+        else:
+            ForumSujetLike.objects.create(
+                sujet=sujet,
+                utilisateur=request.user,
+                type_vote=type_vote
+            )
+        
+        likes = ForumSujetLike.objects.filter(sujet=sujet, type_vote=1).count()
+        dislikes = ForumSujetLike.objects.filter(sujet=sujet, type_vote=-1).count()
+        
+        return JsonResponse({
+            'success': True,
+            'action': 'added',
+            'likes': likes,
+            'dislikes': dislikes,
+        })
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
+
+
+@login_required
+@require_http_methods(["POST"])
+def toggle_forum_reponse_like(request, reponse_id):
+    """Ajouter/supprimer un like sur une réponse de forum"""
+    try:
+        from .models import ForumReponse, ForumReponseLike
+        
+        reponse = ForumReponse.objects.get(id=reponse_id)
+        type_vote = int(request.POST.get('type_vote', 1))
+        
+        if type_vote not in [1, -1]:
+            return JsonResponse({'error': 'Type de vote invalide'}, status=400)
+        
+        existing_like = ForumReponseLike.objects.filter(
+            reponse=reponse,
+            utilisateur=request.user
+        ).first()
+        
+        if existing_like:
+            if existing_like.type_vote == type_vote:
+                existing_like.delete()
+                return JsonResponse({
+                    'success': True,
+                    'action': 'removed',
+                    'likes': ForumReponseLike.objects.filter(reponse=reponse, type_vote=1).count(),
+                    'dislikes': ForumReponseLike.objects.filter(reponse=reponse, type_vote=-1).count(),
+                })
+            else:
+                existing_like.type_vote = type_vote
+                existing_like.save()
+        else:
+            ForumReponseLike.objects.create(
+                reponse=reponse,
+                utilisateur=request.user,
+                type_vote=type_vote
+            )
+        
+        likes = ForumReponseLike.objects.filter(reponse=reponse, type_vote=1).count()
+        dislikes = ForumReponseLike.objects.filter(reponse=reponse, type_vote=-1).count()
+        
+        return JsonResponse({
+            'success': True,
+            'action': 'added',
+            'likes': likes,
+            'dislikes': dislikes,
+        })
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)

@@ -55,5 +55,17 @@ urlpatterns = [
     path('api/notifications/', views_new_features.get_notifications, name='get_notifications'),
     path('api/notifications/<int:notif_id>/lue/', views_new_features.marquer_notification_comme_lue, name='marquer_notif_lue'),
     path('api/notifications/marquer-toutes-lues/', views_new_features.marquer_toutes_lues, name='marquer_toutes_lues'),
+    
+    # Likes/Dislikes - Articles
+    path('api/article/<int:article_id>/like/toggle/', views_new_features.toggle_article_like, name='toggle_article_like'),
+    
+    # Likes/Dislikes - Médias
+    path('api/media/<int:media_id>/like/toggle/', views_new_features.toggle_media_like, name='toggle_media_like'),
+    
+    # Likes/Dislikes - Forum Sujet
+    path('api/forum/sujet/<int:sujet_id>/like/toggle/', views_new_features.toggle_forum_sujet_like, name='toggle_forum_sujet_like'),
+    
+    # Likes/Dislikes - Forum Réponse
+    path('api/forum/reponse/<int:reponse_id>/like/toggle/', views_new_features.toggle_forum_reponse_like, name='toggle_forum_reponse_like'),
 ]
 
